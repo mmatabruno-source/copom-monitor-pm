@@ -53,10 +53,11 @@ na raiz do repositório.
   usuário via navegador em 28/06/2026; payload real documentado em `contracts/bcb-api.md` e
   `research.md` (envelope `conteudo`, campo `nro_reuniao` snake_case); `src/bcb_client.py` e
   `src/main.py` ajustados de acordo
-- [ ] T005b **PENDENTE (requer acesso a `www.bcb.gov.br`, bloqueado no sandbox)** Validar
-  manualmente `comunicados_detalhes?nro_reuniao=N` — ainda não confirmado; a listagem não traz
-  Selic/variação/votação nem texto completo, então `detalhes_comunicado` em `src/bcb_client.py`
-  precisa de ajuste após essa validação
+- [X] T005b Validar manualmente `comunicados_detalhes?nro_reuniao=N` — feito pelo usuário via
+  navegador em 28/06/2026; payload real documentado em `contracts/bcb-api.md` e `research.md`
+  (mesmo envelope `conteudo` da listagem, campo `textoComunicado`, sem campos estruturados de
+  Selic/variação/votação); `src/bcb_client.py` (`detalhes_comunicado`) ajustado para desembrulhar
+  o envelope
 - [X] T006 Implementar `src/estado.py`: funções `carregar_estado()` e `salvar_estado(ultima_ata, ultimo_comunicado)`
   lendo/escrevendo `estado.json` (data-model.md, Registro de Processamento)
 - [X] T007 [P] Implementar `src/historico.py`: funções `salvar_publicacao(tipo, nro_reuniao, dados, analise)`

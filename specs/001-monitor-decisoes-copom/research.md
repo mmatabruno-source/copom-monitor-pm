@@ -89,10 +89,14 @@ pontos — ver `contracts/bcb-api.md`:
 2. O identificador é `nro_reuniao` (snake_case), enquanto Atas usa `nroReuniao`
    (camelCase) — os dois endpoints **não** seguem a mesma convenção de nomes.
 
-O endpoint de detalhes (`comunicados_detalhes?nro_reuniao=N`) ainda não foi validado —
-a listagem não traz Selic/variação/votação nem o texto completo, então o detalhe
-provavelmente é onde esse conteúdo mora. Pendência remanescente antes de finalizar
-`detalhes_comunicado` em `src/bcb_client.py`.
+**Atualização (28/06/2026, segunda validação)**: endpoint de detalhes confirmado.
+Mesmo padrão de envelope `"conteudo"` da listagem (lista de um único item). Campo de
+texto completo: `textoComunicado` (HTML). Confirmado também que **nenhum dos dois
+endpoints de Comunicado** retorna campos estruturados de Selic resultante/variação/
+votação — esses dados existem só como texto livre, exigindo extração via análise da
+Anthropic (já era o desenho original, sem mudança de arquitetura). `detalhes_comunicado`
+em `src/bcb_client.py` ajustado para desembrulhar o envelope. Pendência técnica de
+Comunicado encerrada (T005a + T005b).
 
 **Alternatives considered**: nenhuma — é uma verificação obrigatória antes de codar,
 não uma escolha de design.

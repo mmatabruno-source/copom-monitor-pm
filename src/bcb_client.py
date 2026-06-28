@@ -38,6 +38,9 @@ def listar_comunicados(quantidade=1):
 
 
 def detalhes_comunicado(nro_reuniao):
-    # PENDÊNCIA TÉCNICA (T005, contracts/bcb-api.md): payload deste endpoint ainda não
-    # confirmado manualmente. Ajustar parsing após validação.
-    return _get(f"{BASE_URL}/comunicados_detalhes", {"nro_reuniao": nro_reuniao})
+    # Confirmado em 28/06/2026 (contracts/bcb-api.md): resposta também envelopada em
+    # "conteudo", como lista de um único item (mesmo padrão da listagem). Campo de
+    # texto: "textoComunicado" (HTML). Sem campos estruturados de Selic/variação/votação.
+    resposta = _get(f"{BASE_URL}/comunicados_detalhes", {"nro_reuniao": nro_reuniao})
+    itens = resposta.get("conteudo", [])
+    return itens[0] if itens else {}

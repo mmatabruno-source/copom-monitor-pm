@@ -67,23 +67,41 @@ Diferenças confirmadas em relação à hipótese:
    variação em p.p., votação) precisam vir do endpoint de detalhes ou ser extraídos do
    `titulo`/texto completo pela análise da Anthropic.
 
-## Detalhes do Comunicado (AINDA NÃO confirmado — pendência técnica remanescente)
+## Detalhes do Comunicado (confirmado em 28/06/2026, via navegador)
 
 ```
 GET https://www.bcb.gov.br/api/servico/sitebcb/copom/comunicados_detalhes?nro_reuniao=N
 ```
 
-**Ação obrigatória antes de finalizar `bcb_client.py` para Comunicado**: confirmar via
-navegador/curl manual o payload deste endpoint (texto completo do Comunicado, nome do
-campo de Selic resultante/variação/votação, se existirem). Dado que a listagem não traz
-esses dados, é provável que o texto completo do Comunicado (usado como `texto_bruto`
-para a análise da Anthropic) só esteja disponível aqui.
+Resposta real (mesmo padrão de envelope da listagem — lista dentro de `"conteudo"`):
 
-**Nota de risco**: como a listagem de Comunicados teve formato de envelope (`conteudo`)
-diferente do assumido para Atas, vale também confirmar se `atas_detalhes` e a listagem de
-Atas realmente retornam payload bruto (sem envelope) como documentado acima — essa
-suposição nunca foi testada de fato contra a API real, apenas copiada da especificação
-original do usuário.
+```json
+{
+  "conteudo": [
+    {
+      "nro_reuniao": 279,
+      "dataReferencia": "2026-06-17",
+      "titulo": "Copom reduz a taxa Selic para 14,25% a.a.",
+      "textoComunicado": "<html com texto completo do Comunicado>"
+    }
+  ]
+}
+```
+
+Confirmado:
+1. Mesmo envelope `"conteudo"` da listagem, também como lista de um único item.
+2. Campo de texto completo: `textoComunicado` (HTML), análogo a `textoAta` em Atas.
+3. **Não há campos estruturados** de Selic resultante/variação/votação em nenhum dos dois
+   endpoints de Comunicado — esses dados existem só como texto livre dentro de
+   `textoComunicado`. A extração (decisão objetiva + sinalização) é responsabilidade da
+   análise da Anthropic (`gerar_analise_comunicado`), conforme já desenhado em
+   `contracts/anthropic-api.md` — nenhuma mudança de arquitetura necessária.
+
+**Nota de risco (ainda não resolvida)**: como a listagem e os detalhes de Comunicados
+tiveram formato de envelope (`conteudo`) diferente do assumido para Atas, vale também
+confirmar se `atas_detalhes` e a listagem de Atas realmente retornam payload bruto (sem
+envelope) como documentado acima — essa suposição nunca foi testada de fato contra a API
+real, apenas copiada da especificação original do usuário.
 
 ## Tratamento de erro (ambos endpoints)
 
