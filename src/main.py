@@ -27,10 +27,11 @@ def _renderizar_md_comunicado(comunicado, analise):
     )
 
 
-def _renderizar_md_ata(ata, analise):
+def _renderizar_md_ata(ata, resumo, detalhe):
     return (
         f"# Ata — Reunião {ata['nroReuniao']}\n\n"
-        f"## Análise\n\n{analise}\n\n"
+        f"## Resumo executivo\n\n{resumo}\n\n"
+        f"## Análise completa\n\n{detalhe}\n\n"
         f"## Dados\n\n"
         f"- Data de referência: {ata.get('dataReferencia')}\n"
         f"- Data de publicação: {ata.get('dataPublicacao')}\n"
@@ -131,21 +132,23 @@ def verificar_ata():
     analise_ata_anterior = ata_anterior.get("analise") if ata_anterior else None
 
     try:
-        analise = gerar_analise_ata(texto_estruturado, analise_ata_anterior)
+        resumo, detalhe = gerar_analise_ata(texto_estruturado, analise_ata_anterior)
     except FalhaExternaAnthropic as exc:
         logger.error("Falha ao gerar análise da Ata %s: %s", nro_reuniao, exc)
         notificar_falha(f"geração de análise da Ata {nro_reuniao}", exc)
         return False
 
-    mensagem = f"📄 Nova Ata do Copom (Reunião {nro_reuniao})\n\n{analise}"
+    mensagem_resumo = f"📄 Nova Ata do Copom (Reunião {nro_reuniao})\n\n{resumo}"
     try:
-        enviar_mensagem(mensagem)
+        enviar_mensagem(mensagem_resumo)
+        enviar_mensagem(detalhe)
     except FalhaExternaTelegram as exc:
         logger.error("Falha ao notificar Ata %s via Telegram: %s", nro_reuniao, exc)
         return False
 
+    analise = f"{resumo}\n\n{detalhe}"
     ata["analise"] = analise
-    md = _renderizar_md_ata(ata, analise)
+    md = _renderizar_md_ata(ata, resumo, detalhe)
     historico.salvar_publicacao("ata", nro_reuniao, ata, md)
 
     estado.salvar_estado(ultima_ata=nro_reuniao)
