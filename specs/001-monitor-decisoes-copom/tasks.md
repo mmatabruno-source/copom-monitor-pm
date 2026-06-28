@@ -33,11 +33,11 @@ na raiz do repositório.
 
 **Purpose**: Inicialização do projeto e estrutura básica
 
-- [ ] T001 Criar estrutura de diretórios do projeto (`src/`, `tests/unit/`, `tests/integration/`,
+- [X] T001 Criar estrutura de diretórios do projeto (`src/`, `tests/unit/`, `tests/integration/`,
   `historico/comunicados/`, `historico/atas/`) com arquivos `.gitkeep` onde necessário
-- [ ] T002 Criar `requirements.txt` na raiz com `requests`, `anthropic`, `pytest`
-- [ ] T003 [P] Criar `estado.json` inicial na raiz com `{"ultima_ata": null, "ultimo_comunicado": null}`
-- [ ] T004 [P] Criar `.gitignore` cobrindo `.venv/`, `__pycache__/`, `*.pyc`
+- [X] T002 Criar `requirements.txt` na raiz com `requests`, `anthropic`, `pytest`
+- [X] T003 [P] Criar `estado.json` inicial na raiz com `{"ultima_ata": null, "ultimo_comunicado": null}`
+- [X] T004 [P] Criar `.gitignore` cobrindo `.venv/`, `__pycache__/`, `*.pyc`
 
 **Checkpoint**: Estrutura do projeto pronta para receber código
 
