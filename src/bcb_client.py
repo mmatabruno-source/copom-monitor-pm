@@ -23,11 +23,18 @@ def _get(url, params):
 
 
 def listar_atas(quantidade=1):
-    return _get(f"{BASE_URL}/atas", {"quantidade": quantidade})
+    # Confirmado em 28/06/2026 (contracts/bcb-api.md): resposta envelopada em "conteudo",
+    # mesmo padrão de Comunicados. Identificador "nroReuniao" (camelCase, confirmado).
+    resposta = _get(f"{BASE_URL}/atas", {"quantidade": quantidade})
+    return resposta.get("conteudo", [])
 
 
 def detalhes_ata(nro_reuniao):
-    return _get(f"{BASE_URL}/atas_detalhes", {"nro_reuniao": nro_reuniao})
+    # Confirmado em 28/06/2026: também envelopado em "conteudo", como lista de um único
+    # item. Campo de texto: "textoAta" (HTML, seções A/B/C/D).
+    resposta = _get(f"{BASE_URL}/atas_detalhes", {"nro_reuniao": nro_reuniao})
+    itens = resposta.get("conteudo", [])
+    return itens[0] if itens else {}
 
 
 def listar_comunicados(quantidade=1):

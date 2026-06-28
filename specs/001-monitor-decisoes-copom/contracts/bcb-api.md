@@ -1,38 +1,50 @@
 # Contrato: API do BCB
 
-## Listar Atas (confirmado)
+## Listar Atas (confirmado em 28/06/2026, via navegador)
 
 ```
 GET https://www.bcb.gov.br/api/servico/sitebcb/copom/atas?quantidade=N
 ```
 
-Resposta esperada (lista, mais recente primeiro ou último — **validar ordenação na
-implementação**, não assumir):
+Resposta real (mesmo padrão de envelope `"conteudo"` de Comunicados — diferente da
+hipótese original, que assumia array na raiz):
 
 ```json
-[
-  {
-    "nroReuniao": 268,
-    "dataReferencia": "2026-06-17",
-    "dataPublicacao": "2026-06-23T08:00:00",
-    "titulo": "Ata da 268ª Reunião do Copom"
-  }
-]
+{
+  "conteudo": [
+    {
+      "nroReuniao": 279,
+      "dataReferencia": "2026-06-17",
+      "dataPublicacao": "2026-06-23",
+      "titulo": "279ª Reunião - 16-17 junho, 2026"
+    }
+  ]
+}
 ```
 
-## Detalhes da Ata (confirmado)
+Identificador `nroReuniao` (camelCase) confirmado — diferente de Comunicados
+(`nro_reuniao`, snake_case). Não assumir consistência de naming entre os endpoints.
+
+## Detalhes da Ata (confirmado em 28/06/2026, via navegador)
 
 ```
 GET https://www.bcb.gov.br/api/servico/sitebcb/copom/atas_detalhes?nro_reuniao=N
 ```
 
-Resposta esperada:
+Resposta real (mesmo padrão de envelope — lista de um único item):
 
 ```json
 {
-  "nroReuniao": 268,
-  "textoAta": "<html estruturado em seções A/B/C/D>",
-  "urlPdfAta": "https://www.bcb.gov.br/.../ata268.pdf"
+  "conteudo": [
+    {
+      "nroReuniao": 279,
+      "dataReferencia": "2026-06-17",
+      "dataPublicacao": "2026-06-23",
+      "titulo": "279ª Reunião - 16-17 junho, 2026",
+      "urlPdfAta": "https://www.bcb.gov.br/.../Copom279-not20260617279.pdf",
+      "textoAta": "<html estruturado em seções A/B/C/D>"
+    }
+  ]
 }
 ```
 
@@ -97,11 +109,9 @@ Confirmado:
    análise da Anthropic (`gerar_analise_comunicado`), conforme já desenhado em
    `contracts/anthropic-api.md` — nenhuma mudança de arquitetura necessária.
 
-**Nota de risco (ainda não resolvida)**: como a listagem e os detalhes de Comunicados
-tiveram formato de envelope (`conteudo`) diferente do assumido para Atas, vale também
-confirmar se `atas_detalhes` e a listagem de Atas realmente retornam payload bruto (sem
-envelope) como documentado acima — essa suposição nunca foi testada de fato contra a API
-real, apenas copiada da especificação original do usuário.
+**Nota de risco (resolvida em 28/06/2026)**: confirmado que `atas` e `atas_detalhes`
+também usam o envelope `"conteudo"` (não payload bruto, como assumido originalmente).
+`src/bcb_client.py` (`listar_atas`, `detalhes_ata`) ajustado para desembrulhar.
 
 ## Tratamento de erro (ambos endpoints)
 

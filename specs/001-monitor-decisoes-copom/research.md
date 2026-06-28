@@ -98,6 +98,14 @@ Anthropic (já era o desenho original, sem mudança de arquitetura). `detalhes_c
 em `src/bcb_client.py` ajustado para desembrulhar o envelope. Pendência técnica de
 Comunicado encerrada (T005a + T005b).
 
+**Atualização (28/06/2026, terceira validação — Atas)**: a nota de risco sobre Atas
+nunca ter sido testada de fato (ver `contracts/bcb-api.md`) foi resolvida. `atas` e
+`atas_detalhes` também usam o envelope `{"conteudo": [...]}`, confirmando que esse é o
+padrão geral da API do BCB (não uma particularidade de Comunicados). Nomes de campo
+(`nroReuniao` camelCase, `textoAta`, `urlPdfAta`, `dataPublicacao`) confirmados iguais à
+hipótese original. `src/bcb_client.py` (`listar_atas`, `detalhes_ata`) ajustado para
+desembrulhar o envelope, no mesmo padrão de Comunicados.
+
 **Alternatives considered**: nenhuma — é uma verificação obrigatória antes de codar,
 não uma escolha de design.
 

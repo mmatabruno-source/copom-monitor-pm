@@ -58,6 +58,12 @@ na raiz do repositório.
   (mesmo envelope `conteudo` da listagem, campo `textoComunicado`, sem campos estruturados de
   Selic/variação/votação); `src/bcb_client.py` (`detalhes_comunicado`) ajustado para desembrulhar
   o envelope
+- [X] T005c Validar manualmente `atas?quantidade=N` e `atas_detalhes?nro_reuniao=N` — feito pelo
+  usuário via navegador em 28/06/2026; payload real confirmou o mesmo padrão de envelope
+  `conteudo` usado em Comunicados (a hipótese original assumia payload bruto sem envelope, nunca
+  testada até então); nomes de campo (`nroReuniao`, `textoAta`, `urlPdfAta`, `dataPublicacao`)
+  confirmados iguais à hipótese; `src/bcb_client.py` (`listar_atas`, `detalhes_ata`) ajustado para
+  desembrulhar o envelope, fechando a nota de risco registrada em `contracts/bcb-api.md`
 - [X] T006 Implementar `src/estado.py`: funções `carregar_estado()` e `salvar_estado(ultima_ata, ultimo_comunicado)`
   lendo/escrevendo `estado.json` (data-model.md, Registro de Processamento)
 - [X] T007 [P] Implementar `src/historico.py`: funções `salvar_publicacao(tipo, nro_reuniao, dados, analise)`
