@@ -192,10 +192,11 @@ data-model.md, em formato legível.
 - [X] T030 [P] Teste de integração de falha simulada (abortar sem atualizar estado, reprocessar do
   zero na próxima execução) em `tests/integration/test_main_fluxo_completo.py`, conforme
   quickstart.md Cenário 3
-- [ ] T031 **PENDENTE (requer ambiente com acesso à API real do BCB/Telegram/Anthropic)** Executar
-  manualmente os 3 cenários de validação de quickstart.md contra a API real do BCB antes de
-  considerar a feature concluída — não executável no sandbox (rede bloqueada), deve ser feito
-  pelo usuário
+- [X] T031 Executado manualmente em 28/06/2026 contra a API real do BCB/Telegram/Anthropic:
+  Comunicado e Ata da Reunião 279 detectados, analisados e notificados via Telegram com sucesso
+  (Comunicado com decisão objetiva + sinalização; Ata com os 6 itens completos, dividida em
+  múltiplos blocos); histórico (`historico/comunicados/279.json|.md`, `historico/atas/279.json|.md`)
+  e `estado.json` commitados automaticamente pelo workflow
 
 ---
 
