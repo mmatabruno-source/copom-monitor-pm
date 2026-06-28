@@ -1,0 +1,42 @@
+name: Teste manual — Comunicado
+
+on:
+  workflow_dispatch:
+    inputs:
+      nro_reuniao:
+        description: "Número da reunião do Comunicado a testar"
+        required: true
+      selic_anterior:
+        description: "Selic anterior (%), opcional"
+        required: false
+      data_publicacao:
+        description: "Data de publicação (DD/MM/AAAA), opcional"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar teste do Comunicado
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -m src.teste_comunicado "${{ github.event.inputs.nro_reuniao }}" \
+            ${{ github.event.inputs.selic_anterior && format('--selic-anterior {0}', github.event.inputs.selic_anterior) || '' }} \
+            ${{ github.event.inputs.data_publicacao && format('--data-publicacao {0}', github.event.inputs.data_publicacao) || '' }}
