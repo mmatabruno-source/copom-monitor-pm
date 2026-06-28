@@ -17,6 +17,10 @@
   do registro de processamento e do histórico. Como evitar isso? → A: o sistema MUST
   garantir que apenas uma verificação seja executada por vez — uma nova verificação
   agendada não pode iniciar enquanto a anterior ainda estiver em andamento.
+- Q: Se um novo Comunicado e uma nova Ata forem detectados como pendentes na mesma
+  verificação (ex.: após um período fora do ar), o que o sistema deve fazer? → A:
+  processar ambos na mesma execução, de forma independente um do outro — cada fluxo
+  mantém seu próprio registro de processamento e idempotência.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -103,6 +107,10 @@ interface do GitHub.
 
 ### Edge Cases
 
+- O que acontece se, na mesma verificação, tanto um novo Comunicado quanto uma nova Ata
+  estiverem pendentes (ex.: o robô esteve fora do ar por um período que cruzou as duas
+  publicações)? O sistema processa ambos na mesma execução, de forma independente,
+  cada um com seu próprio registro de processamento.
 - O que acontece se a API do BCB estiver fora do ar no momento da verificação? O
   sistema deve abortar essa execução sem marcar nada como processado e, se possível,
   notificar a falha via Telegram; a próxima verificação agendada tenta novamente.
