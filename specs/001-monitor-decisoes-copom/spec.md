@@ -8,6 +8,16 @@
 
 **Input**: User description: "Quero monitorar quando o Banco Central do Brasil publica um novo Comunicado ou uma nova Ata do Copom, e me notificar via Telegram com uma análise crítica, orientada a um Product Manager de investimentos, com histórico permanente das publicações."
 
+## Clarifications
+
+### Session 2026-06-28
+
+- Q: Dentro das janelas densas de verificação (a cada 15 min), uma execução pode demorar
+  mais que o intervalo e se sobrepor à próxima, criando risco de concorrência na escrita
+  do registro de processamento e do histórico. Como evitar isso? → A: o sistema MUST
+  garantir que apenas uma verificação seja executada por vez — uma nova verificação
+  agendada não pode iniciar enquanto a anterior ainda estiver em andamento.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Alerta imediato da decisão de juros (Priority: P1)
@@ -154,6 +164,10 @@ interface do GitHub.
   que falhou.
 - **FR-013**: Uma falha em qualquer execução MUST NOT corromper ou sobrescrever
   incorretamente o histórico de publicações e análises já salvas.
+- **FR-014**: O sistema MUST garantir que apenas uma verificação seja executada por vez
+  — uma nova verificação agendada não pode iniciar enquanto uma anterior ainda estiver
+  em andamento, para evitar escrita concorrente do registro de processamento e do
+  histórico.
 
 ### Key Entities
 
