@@ -1,0 +1,38 @@
+name: Teste manual — Ata
+
+on:
+  workflow_dispatch:
+    inputs:
+      nro_reuniao:
+        description: "Número da reunião da Ata a testar"
+        required: true
+      analise_anterior_de:
+        description: "Número da reunião anterior para comparação de tom (opcional)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar teste da Ata
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -m src.teste_ata "${{ github.event.inputs.nro_reuniao }}" \
+            ${{ github.event.inputs.analise_anterior_de && format('--analise-anterior-de {0}', github.event.inputs.analise_anterior_de) || '' }}
