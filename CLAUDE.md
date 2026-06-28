@@ -23,14 +23,14 @@ tarefa, não um commit gigante ao final — assim o histórico do Git documenta 
 execução do SDD, tarefa por tarefa.
 
 ## Comandos do Spec Kit disponíveis neste projeto
-- `/speckit.constitution` — cria ou atualiza os princípios do projeto
-- `/speckit.specify` — cria ou atualiza o spec.md de uma funcionalidade
-- `/speckit.clarify` — faz perguntas estruturadas sobre ambiguidades na spec
-- `/speckit.plan` — gera o plan.md técnico a partir do spec.md
-- `/speckit.tasks` — quebra o plan.md em tasks.md (tarefas atômicas)
-- `/speckit.implement` — implementa o código seguindo o tasks.md, tarefa por tarefa
-- `/speckit.analyze` — verifica consistência entre spec/plan/tasks
-- `/speckit.checklist` — gera checklist de validação antes de considerar concluído
+- `/speckit-constitution` — cria ou atualiza os princípios do projeto
+- `/speckit-specify` — cria ou atualiza o spec.md de uma funcionalidade
+- `/speckit-clarify` — faz perguntas estruturadas sobre ambiguidades na spec
+- `/speckit-plan` — gera o plan.md técnico a partir do spec.md
+- `/speckit-tasks` — quebra o plan.md em tasks.md (tarefas atômicas)
+- `/speckit-implement` — implementa o código seguindo o tasks.md, tarefa por tarefa
+- `/speckit-analyze` — verifica consistência entre spec/plan/tasks
+- `/speckit-checklist` — gera checklist de validação antes de considerar concluído
 
 ## Restrições conhecidas deste projeto (constituição resumida)
 - **Linguagem:** Python
@@ -45,9 +45,38 @@ execução do SDD, tarefa por tarefa.
 - **Fonte de verdade:** detecção de novidade sempre via API do BCB, nunca via calendário
   estimado de reuniões
 
-## Pendências conhecidas a validar com `/speckit.clarify` antes de implementar
-- Confirmar a URL exata e o payload do endpoint de **comunicados** do BCP — só o endpoint
+## Pendências conhecidas a validar com `/speckit-clarify` antes de implementar
+- Confirmar a URL exata e o payload do endpoint de **comunicados** do BCB — só o endpoint
   de **atas** foi testado e confirmado até agora
+
+## Decisões já tomadas (clarificações resolvidas em 28/06/2026)
+Estas decisões devem ser incorporadas ao `spec.md` e `plan.md` quando gerados via
+`/speckit-specify` e `/speckit-plan` — não repetir o `/speckit-clarify` para estes pontos:
+
+- **Notificação de falha:** quando uma chamada externa falhar (API do BCB, API da
+  Anthropic ou Telegram), o sistema deve tentar avisar o usuário via Telegram (ex.:
+  "⚠️ Falha ao buscar API do BCB, tentando novamente na próxima execução"). Se o próprio
+  Telegram for o componente que falhou, a tentativa de aviso falha silenciosamente (sem
+  retry adicional) — a execução não deve travar por isso.
+- **Modelo Claude:** usar Claude Sonnet (atualmente `claude-sonnet-4-6`) para gerar
+  resumos e análises. Volume baixíssimo (~16 chamadas/ano) torna o custo irrelevante;
+  prioriza-se qualidade analítica sobre economia.
+- **Mensagens longas no Telegram:** a análise completa da Ata pode exceder o limite de
+  4096 caracteres por mensagem. Dividir em múltiplas mensagens sequenciais (não truncar,
+  não substituir por link).
+- **Agendamento do cron (3 camadas, todos os horários em UTC — Brasília é UTC-3 fixo,
+  sem horário de verão desde 2019):**
+  1. **Baseline (todos os dias do ano):** a cada 3h — garante detecção de reuniões
+     extraordinárias fora do calendário típico, sem depender dele (RNF: fonte de verdade
+     é sempre a API, nunca o calendário).
+  2. **Janela densa de terça-feira** (dia típico de publicação da Ata, 8h BRT): a cada
+     15 min entre 10:45–13:00 UTC (7:45–10:00 BRT).
+  3. **Janela densa de quarta-feira** (dia típico de publicação do Comunicado, a partir
+     de ~18h30 BRT): a cada 15 min entre 21:15–23:45 UTC (18:15–20:45 BRT).
+  O calendário oficial do Copom **não** é usado para decidir *se* o robô verifica (isso
+  seria depender do calendário como gatilho, proibido pela spec) — só para decidir a
+  *frequência* de verificação em dias normais. Em qualquer outro dia, o baseline garante
+  teto de latência de ~3h.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
