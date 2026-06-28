@@ -81,4 +81,5 @@ Estas decisões devem ser incorporadas ao `spec.md` e `plan.md` quando gerados v
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
+at /home/user/copom-monitor-pm/specs/001-monitor-decisoes-copom/plan.md
 <!-- SPECKIT END -->
