@@ -94,18 +94,20 @@ novidade não deve gerar segunda notificação (quickstart.md, Cenário 2).
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implementar `listar_comunicados(quantidade)` e `detalhes_comunicado(nro_reuniao)`
-  em `src/bcb_client.py`, usando o payload confirmado em T005
-- [ ] T014 [US1] Implementar `gerar_analise_comunicado(texto_bruto)` em `src/analise.py`, chamando a
+- [X] T013 [US1] Implementar `listar_comunicados(quantidade)` e `detalhes_comunicado(nro_reuniao)`
+  em `src/bcb_client.py`, usando o payload confirmado em T005 — implementado seguindo a hipótese
+  documentada (ver nota de bloqueio em T005); ajustar nomes de campo após validação manual
+- [X] T014 [US1] Implementar `gerar_analise_comunicado(texto_bruto)` em `src/analise.py`, chamando a
   API da Anthropic (modelo `claude-sonnet-4-6`) com o prompt de 2 itens (decisão objetiva + sinalização)
   conforme `contracts/anthropic-api.md`, tratando falha como FR-011
-- [ ] T015 [US1] Implementar fluxo de verificação do Comunicado em `src/main.py`: comparar
+- [X] T015 [US1] Implementar fluxo de verificação do Comunicado em `src/main.py`: comparar
   `nro_reuniao` mais recente da API com `estado.ultimo_comunicado`, processar se novo
   (extrair → analisar → notificar → salvar histórico → atualizar estado, nesta ordem, FR-010)
-- [ ] T016 [US1] Integrar tratamento de falha em `src/main.py` para o fluxo de Comunicado:
+- [X] T016 [US1] Integrar tratamento de falha em `src/main.py` para o fluxo de Comunicado:
   qualquer falha externa aborta sem marcar como processado e chama `notificar_falha` (FR-011/FR-012)
-- [ ] T017 [US1] Tratar edge case de primeira execução (sem histórico) no fluxo de Comunicado
-  em `src/main.py` (spec.md, edge cases)
+- [X] T017 [US1] Tratar edge case de primeira execução (sem histórico) no fluxo de Comunicado
+  em `src/main.py` (spec.md, edge cases) — coberto naturalmente pela comparação com `ultimo_comunicado`
+  `None` em `verificar_comunicado()`
 
 **Checkpoint**: User Story 1 completa e testável de forma independente
 
