@@ -33,10 +33,20 @@ def _chamar_claude(prompt):
 
 def gerar_analise_comunicado(texto_bruto):
     prompt = (
-        "Você é um analista de investimentos. Com base no Comunicado do Copom abaixo, "
-        "gere uma análise em português com exatamente 2 itens, nesta ordem:\n"
-        "1. Decisão objetiva — Selic resultante, variação em p.p., votação\n"
-        "2. Sinalização (forward guidance) — tom hawkish/dovish/neutro\n\n"
+        "Você é um analista de investimentos especializado em política monetária brasileira, "
+        "escrevendo para uma mensagem de Telegram. Use Markdown do Telegram (*negrito*, sem "
+        "cabeçalhos #, sem tabelas). Com base no Comunicado do Copom abaixo, escreva em "
+        "português, direto e sem introduções genéricas, com exatamente estas duas seções, "
+        "nesta ordem:\n\n"
+        "*Decisão do Copom*\n"
+        "- Selic resultante e variação em p.p.\n"
+        "- Votação (unânime ou dividida)\n\n"
+        "*Sinalização*\n"
+        "- O que o tom da comunicação indica sobre os próximos passos da política monetária\n\n"
+        "Regras:\n"
+        "- Sempre que usar jargão de mercado (Selic, p.p., hawkish/dovish, forward guidance "
+        "etc.), explique brevemente entre parênteses na primeira vez que aparecer.\n"
+        "- Seja direto, sem redundância.\n\n"
         f"Texto do Comunicado:\n{texto_bruto}"
     )
     return _chamar_claude(prompt)
@@ -54,27 +64,63 @@ def extrair_secoes_ata(texto_ata_html):
     return texto_ata_html
 
 
+SEPARADOR_ATA = "===DETALHE==="
+
+
 def gerar_analise_ata(texto_estruturado, analise_ata_anterior=None):
+    """Retorna (resumo, detalhe): duas mensagens distintas para o Telegram.
+
+    `resumo` é curto e escaneável (decisão + sugestão de investimento + leitura por ativo);
+    `detalhe` é mais longo mas direto, sem repetir o conteúdo do resumo.
+    """
     instrucoes_comparacao = (
-        "No item 4, compare explicitamente com a sinalização da Ata anterior fornecida abaixo, "
+        "Compare explicitamente com a sinalização da Ata anterior fornecida abaixo, "
         "indicando o que mudou."
         if analise_ata_anterior
-        else "Não há Ata anterior processada no histórico; omita qualquer comparação no item 4."
+        else "Não há Ata anterior processada no histórico; omita qualquer comparação."
     )
 
     prompt = (
-        "Você é um analista de investimentos. Com base na Ata do Copom abaixo, gere uma análise "
-        "crítica em português com exatamente 6 itens, nesta ordem:\n"
-        "1. Decisão objetiva — Selic, variação, votação\n"
-        "2. Diagnóstico do Copom — atividade, inflação, expectativas Focus, fiscal, externo\n"
-        "3. Balanço de riscos\n"
-        f"4. Sinalização (forward guidance). {instrucoes_comparacao}\n"
-        "5. Leitura por classe de ativo — renda fixa, câmbio, bolsa, crédito privado\n"
-        "6. Sugestão de mensagem ao cliente (2-3 frases)\n\n"
+        "Você é um analista de investimentos especializado em política monetária brasileira, "
+        "escrevendo para mensagens de Telegram. Use Markdown do Telegram (*negrito*, sem "
+        "cabeçalhos #, sem tabelas). Com base na Ata do Copom abaixo, gere DUAS mensagens "
+        "distintas em português. Separe-as exatamente com uma linha contendo só "
+        f"\"{SEPARADOR_ATA}\" (nada mais nessa linha).\n\n"
+        "MENSAGEM 1 — resumo executivo, curto e escaneável (poucas frases por seção), "
+        "nesta ordem:\n"
+        "*Decisão do Copom*: retome muito brevemente a decisão (Selic, variação, votação) "
+        "em 1-2 frases.\n"
+        "*Sugestão para investimentos*: 2-3 frases objetivas e acionáveis sobre como "
+        "posicionar portfólio diante dessa decisão.\n"
+        "*Leitura por classe de ativo*: bullets curtos para renda fixa, câmbio, bolsa e "
+        "crédito privado.\n\n"
+        f"{SEPARADOR_ATA}\n\n"
+        "MENSAGEM 2 — análise completa, direta e acionável, sem repetir o que já foi dito "
+        "na Mensagem 1, nesta ordem:\n"
+        "*Diagnóstico do Copom*: só os pontos de atividade, inflação, expectativas Focus "
+        "(pesquisa de mercado com projeções econômicas), fiscal e externo que são relevantes "
+        "para decisão de portfólio.\n"
+        "*Balanço de riscos*: principais riscos de alta e de baixa para a Selic.\n"
+        f"*Sinalização (forward guidance)*: o que o Copom indicou sobre os próximos passos. "
+        f"{instrucoes_comparacao}\n"
+        "*Mensagem pronta para cliente*: 2-3 frases que o leitor pode copiar e adaptar para "
+        "comunicar a um cliente.\n\n"
+        "Regras para as duas mensagens:\n"
+        "- Sempre que usar jargão (Selic, p.p., hawkish/dovish, Focus, forward guidance etc.), "
+        "explique brevemente entre parênteses na primeira vez que aparecer em cada mensagem.\n"
+        "- Seja direto e acionável: cada seção deve ajudar a decidir algo, não só descrever.\n"
+        "- Não inclua introduções genéricas.\n\n"
         f"Texto da Ata atual:\n{texto_estruturado}"
     )
 
     if analise_ata_anterior:
         prompt += f"\n\nAnálise da Ata anterior (para comparação de tom):\n{analise_ata_anterior}"
 
-    return _chamar_claude(prompt)
+    texto = _chamar_claude(prompt)
+
+    if SEPARADOR_ATA in texto:
+        resumo, detalhe = texto.split(SEPARADOR_ATA, 1)
+    else:  # fallback defensivo — não deveria ocorrer, mas evita perder a notificação
+        resumo, detalhe = texto, ""
+
+    return resumo.strip(), detalhe.strip()
