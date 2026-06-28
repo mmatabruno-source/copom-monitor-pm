@@ -1,0 +1,52 @@
+name: Monitor Copom
+
+on:
+  schedule:
+    # Baseline: a cada 3h, todos os dias do ano (fonte de verdade é sempre a API, nunca o calendário)
+    - cron: "0 */3 * * *"
+    # Janela densa de terça-feira (publicação típica da Ata, 8h BRT): a cada 15 min, 10:45-13:00 UTC
+    - cron: "45,0,15,30 11-12 * * 2"
+    - cron: "45 10 * * 2"
+    - cron: "0 13 * * 2"
+    # Janela densa de quarta-feira (publicação típica do Comunicado, ~18h30 BRT): a cada 15 min, 21:15-23:45 UTC
+    - cron: "15,30,45 21 * * 3"
+    - cron: "0,15,30,45 22 * * 3"
+    - cron: "0,15,30,45 23 * * 3"
+  workflow_dispatch: {}
+
+concurrency:
+  group: monitor-copom
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar verificação
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m src.main
+
+      - name: Commitar histórico atualizado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add historico/ estado.json
+          git diff --cached --quiet || git commit -m "Atualiza histórico do Copom [skip ci]"
+          git push

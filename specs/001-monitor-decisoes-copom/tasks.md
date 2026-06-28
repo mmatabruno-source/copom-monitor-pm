@@ -153,10 +153,13 @@ data-model.md, em formato legível.
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implementar geração do `.md` legível em `src/historico.py` para Comunicado,
-  destacando a análise (decisão + sinalização) no topo do arquivo
-- [ ] T024 [US3] Implementar geração do `.md` legível em `src/historico.py` para Ata, com os 6 itens
-  da análise organizados em seções correspondentes, seguidos do texto estruturado da Ata
+- [X] T023 [US3] Implementar geração do `.md` legível em `src/historico.py` para Comunicado,
+  destacando a análise (decisão + sinalização) no topo do arquivo — implementado como
+  `_renderizar_md_comunicado` em `src/main.py`, persistido via `historico.salvar_publicacao`
+- [X] T024 [US3] Implementar geração do `.md` legível em `src/historico.py` para Ata, com os 6 itens
+  da análise organizados em seções correspondentes, seguidos do texto estruturado da Ata —
+  implementado como `_renderizar_md_ata` em `src/main.py` (análise completa em destaque, seguida do
+  texto estruturado da Ata)
 
 **Checkpoint**: Todas as user stories funcionam de forma independente
 
@@ -166,22 +169,24 @@ data-model.md, em formato legível.
 
 **Purpose**: Integração final, automação e validação de ponta a ponta
 
-- [ ] T025 Implementar `src/main.py` como ponto de entrada único (`python -m src.main`),
+- [X] T025 Implementar `src/main.py` como ponto de entrada único (`python -m src.main`),
   orquestrando os fluxos de Comunicado (T015) e Ata (T020) em uma única execução
-- [ ] T026 [P] Criar `.github/workflows/monitor-copom.yml` com os três `schedule:` (baseline 3h,
+- [X] T026 [P] Criar `.github/workflows/monitor-copom.yml` com os três `schedule:` (baseline 3h,
   janela densa terça 10:45–13:00 UTC, janela densa quarta 21:15–23:45 UTC), `concurrency` com
   `cancel-in-progress: false` (FR-014) e `permissions: contents: write`
-- [ ] T027 Adicionar passo de commit automático do histórico (`historico/`, `estado.json`) ao
+- [X] T027 Adicionar passo de commit automático do histórico (`historico/`, `estado.json`) ao
   workflow `.github/workflows/monitor-copom.yml`, executado apenas quando houver alterações
-- [ ] T028 [P] Teste de integração do fluxo completo (sem novidade → sem alteração de estado/sem
+- [X] T028 [P] Teste de integração do fluxo completo (sem novidade → sem alteração de estado/sem
   notificação) em `tests/integration/test_main_fluxo_completo.py`, com chamadas externas mockadas
-- [ ] T029 [P] Teste de integração de idempotência (rodar duas vezes, segunda sem notificação) em
+- [X] T029 [P] Teste de integração de idempotência (rodar duas vezes, segunda sem notificação) em
   `tests/integration/test_main_fluxo_completo.py`, conforme quickstart.md Cenário 2
-- [ ] T030 [P] Teste de integração de falha simulada (abortar sem atualizar estado, reprocessar do
+- [X] T030 [P] Teste de integração de falha simulada (abortar sem atualizar estado, reprocessar do
   zero na próxima execução) em `tests/integration/test_main_fluxo_completo.py`, conforme
   quickstart.md Cenário 3
-- [ ] T031 Executar manualmente os 3 cenários de validação de quickstart.md contra a API real do
-  BCB (ou o mais próximo possível) antes de considerar a feature concluída
+- [ ] T031 **PENDENTE (requer ambiente com acesso à API real do BCB/Telegram/Anthropic)** Executar
+  manualmente os 3 cenários de validação de quickstart.md contra a API real do BCB antes de
+  considerar a feature concluída — não executável no sandbox (rede bloqueada), deve ser feito
+  pelo usuário
 
 ---
 
