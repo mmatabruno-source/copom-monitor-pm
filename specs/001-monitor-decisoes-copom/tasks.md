@@ -49,12 +49,14 @@ na raiz do repositório.
 
 **⚠️ CRITICAL**: Nenhuma user story pode começar antes desta fase estar completa
 
-- [ ] T005 **BLOQUEADO (ambiente sem acesso a `www.bcb.gov.br`)** Validar manualmente o endpoint de
-  Comunicados da API do BCB via
-  `curl -s "https://www.bcb.gov.br/api/servico/sitebcb/copom/comunicados?quantidade=1"`
-  (e seu `_detalhes`), documentando achados em `specs/001-monitor-decisoes-copom/contracts/bcb-api.md`
-  — precisa ser executado pelo usuário fora do sandbox antes de usar `listar_comunicados`/
-  `detalhes_comunicado` contra a API real (ver quickstart.md, pendência técnica)
+- [X] T005a Validar manualmente a listagem de Comunicados (`comunicados?quantidade=N`) — feito pelo
+  usuário via navegador em 28/06/2026; payload real documentado em `contracts/bcb-api.md` e
+  `research.md` (envelope `conteudo`, campo `nro_reuniao` snake_case); `src/bcb_client.py` e
+  `src/main.py` ajustados de acordo
+- [ ] T005b **PENDENTE (requer acesso a `www.bcb.gov.br`, bloqueado no sandbox)** Validar
+  manualmente `comunicados_detalhes?nro_reuniao=N` — ainda não confirmado; a listagem não traz
+  Selic/variação/votação nem texto completo, então `detalhes_comunicado` em `src/bcb_client.py`
+  precisa de ajuste após essa validação
 - [X] T006 Implementar `src/estado.py`: funções `carregar_estado()` e `salvar_estado(ultima_ata, ultimo_comunicado)`
   lendo/escrevendo `estado.json` (data-model.md, Registro de Processamento)
 - [X] T007 [P] Implementar `src/historico.py`: funções `salvar_publicacao(tipo, nro_reuniao, dados, analise)`

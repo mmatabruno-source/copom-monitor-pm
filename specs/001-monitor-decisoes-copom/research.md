@@ -77,13 +77,22 @@ restrições técnicas da constituição).
 
 **Decision**: validar a URL e o payload reais do endpoint de Comunicados como a
 primeira tarefa de implementação do fluxo de Comunicado (antes de codar
-`bcb_client.py` para esse fluxo), por inspeção manual da resposta da API (ex.: via
-`curl` em ambiente de desenvolvimento, já que o endpoint de atas confirmado segue
-`/api/servico/sitebcb/copom/atas`, sugerindo `/api/servico/sitebcb/copom/comunicados`
-como hipótese a confirmar, não a assumir).
+`bcb_client.py` para esse fluxo), por inspeção manual da resposta da API.
 
 **Rationale**: Constitution e spec.md já marcam isso como pendência conhecida, não
 ambiguidade de requisito — é validação técnica, não decisão de produto.
+
+**Atualização (28/06/2026)**: listagem confirmada via navegador (`GET
+.../comunicados?quantidade=N`). O payload real diverge da hipótese original em dois
+pontos — ver `contracts/bcb-api.md`:
+1. Vem envelopado em `{"conteudo": [...]}`, não como array na raiz.
+2. O identificador é `nro_reuniao` (snake_case), enquanto Atas usa `nroReuniao`
+   (camelCase) — os dois endpoints **não** seguem a mesma convenção de nomes.
+
+O endpoint de detalhes (`comunicados_detalhes?nro_reuniao=N`) ainda não foi validado —
+a listagem não traz Selic/variação/votação nem o texto completo, então o detalhe
+provavelmente é onde esse conteúdo mora. Pendência remanescente antes de finalizar
+`detalhes_comunicado` em `src/bcb_client.py`.
 
 **Alternatives considered**: nenhuma — é uma verificação obrigatória antes de codar,
 não uma escolha de design.

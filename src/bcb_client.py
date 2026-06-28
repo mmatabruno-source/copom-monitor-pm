@@ -31,12 +31,13 @@ def detalhes_ata(nro_reuniao):
 
 
 def listar_comunicados(quantidade=1):
-    # PENDÊNCIA TÉCNICA (T005, contracts/bcb-api.md): URL e payload ainda não confirmados
-    # manualmente — hipótese análoga ao endpoint de Atas. Validar com curl antes de usar
-    # contra a API real.
-    return _get(f"{BASE_URL}/comunicados", {"quantidade": quantidade})
+    # Confirmado em 28/06/2026 (contracts/bcb-api.md): a resposta vem envelopada em
+    # "conteudo" e o identificador é "nro_reuniao" (snake_case) — diferente de Atas.
+    resposta = _get(f"{BASE_URL}/comunicados", {"quantidade": quantidade})
+    return resposta.get("conteudo", [])
 
 
 def detalhes_comunicado(nro_reuniao):
-    # PENDÊNCIA TÉCNICA (T005, contracts/bcb-api.md): mesma ressalva de listar_comunicados.
+    # PENDÊNCIA TÉCNICA (T005, contracts/bcb-api.md): payload deste endpoint ainda não
+    # confirmado manualmente. Ajustar parsing após validação.
     return _get(f"{BASE_URL}/comunicados_detalhes", {"nro_reuniao": nro_reuniao})

@@ -17,9 +17,10 @@ logger = logging.getLogger(__name__)
 
 def _renderizar_md_comunicado(comunicado, analise):
     return (
-        f"# Comunicado — Reunião {comunicado['nroReuniao']}\n\n"
+        f"# Comunicado — Reunião {comunicado['nro_reuniao']}\n\n"
         f"## Análise\n\n{analise}\n\n"
         f"## Dados\n\n"
+        f"- Título: {comunicado.get('titulo')}\n"
         f"- Data de referência: {comunicado.get('dataReferencia')}\n"
         f"- Data de publicação: {comunicado.get('dataPublicacao')}\n\n"
         f"## Texto bruto\n\n{comunicado.get('texto_bruto', '')}\n"
@@ -51,7 +52,9 @@ def verificar_comunicado():
         return False
 
     comunicado_recente = lista[0]
-    nro_reuniao = comunicado_recente["nroReuniao"]
+    # Comunicado usa "nro_reuniao" (snake_case) — diferente de "nroReuniao" em Atas
+    # (contracts/bcb-api.md, confirmado em 28/06/2026). Não assumir naming consistente.
+    nro_reuniao = comunicado_recente["nro_reuniao"]
 
     estado_atual = estado.carregar_estado()
     if estado_atual.get("ultimo_comunicado") == nro_reuniao:

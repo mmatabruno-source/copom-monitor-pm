@@ -31,7 +31,7 @@ def historico_dir(tmp_path, monkeypatch):
     return base
 
 
-COMUNICADO_LISTA = [{"nroReuniao": 270, "dataReferencia": "2026-06-24", "dataPublicacao": "2026-06-24T18:30:00"}]
+COMUNICADO_LISTA = [{"nro_reuniao": 270, "dataReferencia": "2026-06-24", "titulo": "270ª reunião"}]
 COMUNICADO_DETALHES = {"texto_bruto": "Selic mantida em 10%, decisão unânime."}
 
 
