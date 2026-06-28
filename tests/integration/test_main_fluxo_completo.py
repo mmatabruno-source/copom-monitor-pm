@@ -50,12 +50,15 @@ def test_sem_novidade_nao_altera_estado_nem_notifica(estado_arquivo, historico_d
 def test_novidade_notifica_salva_historico_e_atualiza_estado(estado_arquivo, historico_dir):
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
-         patch("src.main.gerar_analise_comunicado", return_value="1. Decisão: Selic 10%\n2. Tom: neutro"), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("📢 Decisão: Selic 10%", "ℹ️ Explicações: tom neutro"),
+         ), \
          patch("src.main.enviar_mensagem") as mock_enviar:
         processado = main.verificar_comunicado()
 
     assert processado is True
-    mock_enviar.assert_called_once()
+    assert mock_enviar.call_count == 2
     assert estado.carregar_estado()["ultimo_comunicado"] == 270
     assert (historico_dir / "comunicados" / "270.json").exists()
     assert (historico_dir / "comunicados" / "270.md").exists()
@@ -64,7 +67,7 @@ def test_novidade_notifica_salva_historico_e_atualiza_estado(estado_arquivo, his
 def test_idempotencia_segunda_execucao_nao_notifica(estado_arquivo, historico_dir):
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
-         patch("src.main.gerar_analise_comunicado", return_value="análise"), \
+         patch("src.main.gerar_mensagens_comunicado", return_value=("decisão", "explicação")), \
          patch("src.main.enviar_mensagem"):
         main.verificar_comunicado()
 
@@ -81,7 +84,10 @@ def test_falha_externa_aborta_sem_marcar_processado(estado_arquivo, historico_di
 
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
-         patch("src.main.gerar_analise_comunicado", side_effect=FalhaExternaAnthropic("chave inválida")), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             side_effect=FalhaExternaAnthropic("chave inválida"),
+         ), \
          patch("src.main.notificar_falha") as mock_notificar:
         processado = main.verificar_comunicado()
 
@@ -95,7 +101,10 @@ def test_reprocessa_apos_falha_quando_chamada_externa_volta_a_funcionar(estado_a
 
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
-         patch("src.main.gerar_analise_comunicado", side_effect=FalhaExternaAnthropic("chave inválida")), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             side_effect=FalhaExternaAnthropic("chave inválida"),
+         ), \
          patch("src.main.notificar_falha"):
         main.verificar_comunicado()
 
@@ -103,10 +112,13 @@ def test_reprocessa_apos_falha_quando_chamada_externa_volta_a_funcionar(estado_a
 
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
-         patch("src.main.gerar_analise_comunicado", return_value="análise ok"), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("decisão ok", "explicação ok"),
+         ), \
          patch("src.main.enviar_mensagem") as mock_enviar:
         processado = main.verificar_comunicado()
 
     assert processado is True
-    mock_enviar.assert_called_once()
+    assert mock_enviar.call_count == 2
     assert estado.carregar_estado()["ultimo_comunicado"] == 270

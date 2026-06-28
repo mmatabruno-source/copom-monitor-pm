@@ -31,25 +31,77 @@ def _chamar_claude(prompt):
     return texto
 
 
-def gerar_analise_comunicado(texto_bruto):
+SEPARADOR_COMUNICADO = "===DETALHE_COMUNICADO==="
+
+
+def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_anterior=None):
+    """Retorna (mensagem1, mensagem2): duas mensagens distintas para o Telegram.
+
+    `mensagem1` é a decisão objetiva (Selic antes/depois); `mensagem2` é a explicação
+    do tom, leitura prática, justificativas e riscos de alta/baixa.
+    """
+    contexto_selic_anterior = (
+        f"A taxa Selic vigente antes desta reunião era {selic_anterior}% a.a.; use esse valor "
+        "como \"Antes\"."
+        if selic_anterior is not None
+        else "Não há registro confiável da taxa Selic anterior a esta reunião. Extraia-a do "
+        "próprio texto do Comunicado somente se ela estiver explicitamente mencionada; caso "
+        "contrário, omita as linhas \"Antes\" e \"O Copom reduziu/elevou/manteve...\" desta "
+        "mensagem, mantendo apenas o valor resultante da Selic."
+    )
+
     prompt = (
         "Você é um analista de investimentos especializado em política monetária brasileira, "
-        "escrevendo para uma mensagem de Telegram. Use Markdown do Telegram (*negrito*, sem "
-        "cabeçalhos #, sem tabelas). Com base no Comunicado do Copom abaixo, escreva em "
-        "português, direto e sem introduções genéricas, com exatamente estas duas seções, "
-        "nesta ordem:\n\n"
-        "*Decisão do Copom*\n"
-        "- Selic resultante e variação em p.p.\n"
-        "- Votação (unânime ou dividida)\n\n"
-        "*Sinalização*\n"
-        "- O que o tom da comunicação indica sobre os próximos passos da política monetária\n\n"
-        "Regras:\n"
-        "- Sempre que usar jargão de mercado (Selic, p.p., hawkish/dovish, forward guidance "
-        "etc.), explique brevemente entre parênteses na primeira vez que aparecer.\n"
-        "- Seja direto, sem redundância.\n\n"
+        "escrevendo para mensagens de Telegram. Use Markdown do Telegram (*negrito*, sem "
+        "cabeçalhos #, sem tabelas). Com base no Comunicado do Copom abaixo, gere DUAS "
+        "mensagens distintas em português. Separe-as exatamente com uma linha contendo só "
+        f"\"{SEPARADOR_COMUNICADO}\" (nada mais nessa linha).\n\n"
+        f"{contexto_selic_anterior}\n\n"
+        "MENSAGEM 1 — decisão objetiva, seguindo EXATAMENTE este formato (preencha os "
+        "colchetes, mantenha os emojis e a formatação em negrito com um único asterisco):\n\n"
+        f"📢 *Decisão do Copom (R. {nro_reuniao}) - {data_publicacao}*\n\n"
+        "📉 O Copom [reduziu/elevou/manteve] a Selic em [X] p.p.\n"
+        "▪️ *Antes:* [taxa anterior]% a.a.\n"
+        "▪️ *Depois:* [taxa resultante]% a.a.\n\n"
+        f"{SEPARADOR_COMUNICADO}\n\n"
+        "MENSAGEM 2 — explicações do Copom, seguindo EXATAMENTE esta estrutura (preencha o "
+        "conteúdo, mantenha os emojis e a formatação em negrito):\n\n"
+        "ℹ️ *Explicações do Copom*\n\n"
+        "🗣️ *Tom do comunicado*: 1-2 linhas descrevendo o tom (hawkish/dovish, cauteloso, "
+        "ambíguo, com ou sem forward guidance explícito), comparando com o padrão de "
+        "comunicação anterior quando fizer sentido.\n\n"
+        "💡 *Leitura prática*: 2-3 linhas sobre o que isso significa na prática para o ritmo "
+        "dos próximos passos da política monetária (ex.: dependência de dados, viés do "
+        "ciclo).\n\n"
+        "📍 *Justificativas apresentadas*:\n\n"
+        "Bullets com \"▪️\" (quantidade livre, sem mínimo ou máximo fixo), cada um reescrito "
+        "como frase explicativa do motivo apresentado pelo Copom — não apenas o fato em si, "
+        "mas o porquê.\n\n"
+        "🔴 *Risco de ALTA para a inflação*:\n\n"
+        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
+        "itens numerados no texto original do Comunicado para os riscos de alta — nem mais "
+        "nem menos —, cada um reescrito como frase explicativa do mecanismo causal.\n\n"
+        "🟢 *Risco de BAIXA para a inflação*:\n\n"
+        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
+        "itens numerados no texto original do Comunicado para os riscos de baixa — nem mais "
+        "nem menos —, cada um reescrito como frase explicativa do mecanismo causal.\n\n"
+        f"Resumo feito com Claude Sonnet 4.6 a partir do comunicado de {data_publicacao} do "
+        "Banco Central.\n\n"
+        "Regras para as duas mensagens:\n"
+        "- Sempre que usar jargão (Selic, p.p., hawkish/dovish, Focus, forward guidance etc.), "
+        "explique brevemente entre parênteses na primeira vez que aparecer em cada mensagem.\n"
+        "- Seja direto, sem introduções genéricas e sem redundância entre as duas mensagens.\n\n"
         f"Texto do Comunicado:\n{texto_bruto}"
     )
-    return _chamar_claude(prompt)
+
+    texto = _chamar_claude(prompt)
+
+    if SEPARADOR_COMUNICADO in texto:
+        mensagem1, mensagem2 = texto.split(SEPARADOR_COMUNICADO, 1)
+    else:  # fallback defensivo — não deveria ocorrer, mas evita perder a notificação
+        mensagem1, mensagem2 = texto, ""
+
+    return mensagem1.strip(), mensagem2.strip()
 
 
 def extrair_secoes_ata(texto_ata_html):

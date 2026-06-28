@@ -1,11 +1,12 @@
 import logging
+import re
 
 from src import bcb_client, estado, historico
 from src.analise import (
     FalhaExternaAnthropic,
     extrair_secoes_ata,
     gerar_analise_ata,
-    gerar_analise_comunicado,
+    gerar_mensagens_comunicado,
 )
 from src.bcb_client import FalhaExternaBCB
 from src.notificar_falha import notificar_falha
@@ -15,16 +16,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def _renderizar_md_comunicado(comunicado, analise):
+def _renderizar_md_comunicado(comunicado, mensagem1, mensagem2):
     return (
         f"# Comunicado — Reunião {comunicado['nro_reuniao']}\n\n"
-        f"## Análise\n\n{analise}\n\n"
+        f"## Decisão\n\n{mensagem1}\n\n"
+        f"## Explicações do Copom\n\n{mensagem2}\n\n"
         f"## Dados\n\n"
         f"- Título: {comunicado.get('titulo')}\n"
         f"- Data de referência: {comunicado.get('dataReferencia')}\n"
         f"- Data de publicação: {comunicado.get('dataPublicacao')}\n\n"
         f"## Texto bruto\n\n{comunicado.get('texto_bruto', '')}\n"
     )
+
+
+def _extrair_selic_resultante(mensagem1):
+    match = re.search(r"\*Depois:\*\s*([\d,.]+)%", mensagem1)
+    return match.group(1) if match else None
 
 
 def _renderizar_md_ata(ata, resumo, detalhe):
@@ -70,23 +77,30 @@ def verificar_comunicado():
 
     comunicado = {**comunicado_recente, **detalhes}
     texto_bruto = comunicado.get("texto_bruto") or comunicado.get("textoComunicado", "")
+    data_publicacao = comunicado.get("dataPublicacao", "")
+
+    comunicado_anterior = historico.carregar_publicacao_anterior("comunicado", nro_reuniao)
+    selic_anterior = comunicado_anterior.get("selic_resultante") if comunicado_anterior else None
 
     try:
-        analise = gerar_analise_comunicado(texto_bruto)
+        mensagem1, mensagem2 = gerar_mensagens_comunicado(
+            texto_bruto, nro_reuniao, data_publicacao, selic_anterior
+        )
     except FalhaExternaAnthropic as exc:
         logger.error("Falha ao gerar análise do Comunicado %s: %s", nro_reuniao, exc)
         notificar_falha(f"geração de análise do Comunicado {nro_reuniao}", exc)
         return False
 
-    mensagem = f"📢 Novo Comunicado do Copom (Reunião {nro_reuniao})\n\n{analise}"
     try:
-        enviar_mensagem(mensagem)
+        enviar_mensagem(mensagem1)
+        enviar_mensagem(mensagem2)
     except FalhaExternaTelegram as exc:
         logger.error("Falha ao notificar Comunicado %s via Telegram: %s", nro_reuniao, exc)
         return False
 
-    comunicado["analise"] = analise
-    md = _renderizar_md_comunicado(comunicado, analise)
+    comunicado["analise"] = f"{mensagem1}\n\n{mensagem2}"
+    comunicado["selic_resultante"] = _extrair_selic_resultante(mensagem1)
+    md = _renderizar_md_comunicado(comunicado, mensagem1, mensagem2)
     historico.salvar_publicacao("comunicado", nro_reuniao, comunicado, md)
 
     estado.salvar_estado(ultimo_comunicado=nro_reuniao)
