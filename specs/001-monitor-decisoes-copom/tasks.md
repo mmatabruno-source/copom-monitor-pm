@@ -124,17 +124,17 @@ Ata anterior no histórico (edge case), e que `estado.json.ultima_ata` só é at
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implementar `extrair_secoes_ata(texto_ata_html)` em `src/analise.py` para estruturar
+- [X] T018 [US2] Implementar `extrair_secoes_ata(texto_ata_html)` em `src/analise.py` para estruturar
   o HTML retornado por `detalhes_ata` nas seções A/B/C/D (data-model.md, `texto_estruturado`)
-- [ ] T019 [US2] Implementar `gerar_analise_ata(texto_estruturado, analise_ata_anterior=None)` em
+- [X] T019 [US2] Implementar `gerar_analise_ata(texto_estruturado, analise_ata_anterior=None)` em
   `src/analise.py`, chamando a API da Anthropic com o prompt de 6 itens (FR-005), omitindo a instrução
   de comparação de tom quando `analise_ata_anterior` for `None` (contracts/anthropic-api.md)
-- [ ] T020 [US2] Implementar fluxo de verificação da Ata em `src/main.py`: comparar `nro_reuniao` mais
+- [X] T020 [US2] Implementar fluxo de verificação da Ata em `src/main.py`: comparar `nro_reuniao` mais
   recente da API com `estado.ultima_ata`, buscar Ata anterior via `historico.carregar_publicacao_anterior`,
   processar se novo (extrair → analisar → notificar → salvar histórico → atualizar estado, FR-010)
-- [ ] T021 [US2] Integrar tratamento de falha em `src/main.py` para o fluxo de Ata (FR-011/FR-012),
+- [X] T021 [US2] Integrar tratamento de falha em `src/main.py` para o fluxo de Ata (FR-011/FR-012),
   igual ao padrão de T016
-- [ ] T022 [US2] Implementar processamento simultâneo de Comunicado e Ata na mesma execução de
+- [X] T022 [US2] Implementar processamento simultâneo de Comunicado e Ata na mesma execução de
   `src/main.py`, de forma independente (cada falha/sucesso não afeta o outro fluxo), conforme
   clarificação registrada em spec.md
 
