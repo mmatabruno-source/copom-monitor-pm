@@ -49,22 +49,26 @@ na raiz do repositório.
 
 **⚠️ CRITICAL**: Nenhuma user story pode começar antes desta fase estar completa
 
-- [ ] T005 Validar manualmente o endpoint de Comunicados da API do BCB via
+- [ ] T005 **BLOQUEADO (ambiente sem acesso a `www.bcb.gov.br`)** Validar manualmente o endpoint de
+  Comunicados da API do BCB via
   `curl -s "https://www.bcb.gov.br/api/servico/sitebcb/copom/comunicados?quantidade=1"`
   (e seu `_detalhes`), documentando achados em `specs/001-monitor-decisoes-copom/contracts/bcb-api.md`
-  — bloqueante para T011/T012 (ver quickstart.md, pendência técnica)
-- [ ] T006 Implementar `src/estado.py`: funções `carregar_estado()` e `salvar_estado(ultima_ata, ultimo_comunicado)`
+  — precisa ser executado pelo usuário fora do sandbox antes de usar `listar_comunicados`/
+  `detalhes_comunicado` contra a API real (ver quickstart.md, pendência técnica)
+- [X] T006 Implementar `src/estado.py`: funções `carregar_estado()` e `salvar_estado(ultima_ata, ultimo_comunicado)`
   lendo/escrevendo `estado.json` (data-model.md, Registro de Processamento)
-- [ ] T007 [P] Implementar `src/historico.py`: funções `salvar_publicacao(tipo, nro_reuniao, dados, analise)`
+- [X] T007 [P] Implementar `src/historico.py`: funções `salvar_publicacao(tipo, nro_reuniao, dados, analise)`
   gerando `historico/{comunicados|atas}/{nro_reuniao}.json` e `.md`, e
   `carregar_publicacao_anterior(tipo, nro_reuniao_atual)` para buscar a publicação anterior no histórico
   (data-model.md)
-- [ ] T008 [P] Implementar `src/bcb_client.py` com `listar_atas(quantidade)` e `detalhes_ata(nro_reuniao)`
-  contra os endpoints confirmados (`contracts/bcb-api.md`), tratando timeout/4xx/5xx como falha externa (FR-011)
-- [ ] T009 [P] Implementar `src/telegram.py`: função `enviar_mensagem(texto)` que divide texto >4096
+- [X] T008 [P] Implementar `src/bcb_client.py` com `listar_atas(quantidade)` e `detalhes_ata(nro_reuniao)`
+  contra os endpoints confirmados (`contracts/bcb-api.md`), tratando timeout/4xx/5xx como falha externa (FR-011).
+  Funções de Comunicado implementadas seguindo a hipótese documentada, marcadas com comentário de
+  pendência (T005) até validação real
+- [X] T009 [P] Implementar `src/telegram.py`: função `enviar_mensagem(texto)` que divide texto >4096
   caracteres em blocos por limite de parágrafo e envia sequencialmente via `sendMessage`, retornando
   sucesso só se todos os blocos retornarem `ok: true` (`contracts/telegram-api.md`, FR-009)
-- [ ] T010 [P] Implementar `src/notificar_falha.py`: função `notificar_falha(contexto, erro)` que envia
+- [X] T010 [P] Implementar `src/notificar_falha.py`: função `notificar_falha(contexto, erro)` que envia
   mensagem de falha ao Telegram (FR-012), registrando no log da execução se o próprio Telegram falhar
 
 **Checkpoint**: Fundação pronta — implementação das user stories pode começar
@@ -83,9 +87,9 @@ novidade não deve gerar segunda notificação (quickstart.md, Cenário 2).
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Teste unitário de divisão de mensagem >4096 caracteres em
+- [X] T011 [P] [US1] Teste unitário de divisão de mensagem >4096 caracteres em
   `tests/unit/test_telegram.py` (cobre T009)
-- [ ] T012 [P] [US1] Teste unitário de idempotência de `src/estado.py` (não regressão de
+- [X] T012 [P] [US1] Teste unitário de idempotência de `src/estado.py` (não regressão de
   `ultimo_comunicado` ao salvar `ultima_ata` e vice-versa) em `tests/unit/test_estado.py`
 
 ### Implementation for User Story 1
