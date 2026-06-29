@@ -1,7 +1,11 @@
+import time
+
 import requests
 
 BASE_URL = "https://www.bcb.gov.br/api/servico/sitebcb/copom"
 TIMEOUT_SEGUNDOS = 30
+TENTATIVAS = 3
+ESPERA_INICIAL_SEGUNDOS = 2
 
 
 class FalhaExternaBCB(Exception):
@@ -9,17 +13,23 @@ class FalhaExternaBCB(Exception):
 
 
 def _get(url, params):
-    try:
-        resposta = requests.get(url, params=params, timeout=TIMEOUT_SEGUNDOS)
-    except requests.RequestException as exc:
-        raise FalhaExternaBCB(f"Falha de conexão com a API do BCB: {exc}") from exc
+    ultimo_erro = None
+    for tentativa in range(1, TENTATIVAS + 1):
+        try:
+            resposta = requests.get(url, params=params, timeout=TIMEOUT_SEGUNDOS)
+        except requests.RequestException as exc:
+            ultimo_erro = FalhaExternaBCB(f"Falha de conexão com a API do BCB: {exc}")
+        else:
+            if resposta.status_code < 400:
+                return resposta.json()
+            ultimo_erro = FalhaExternaBCB(
+                f"API do BCB retornou status {resposta.status_code} para {url}"
+            )
 
-    if resposta.status_code >= 400:
-        raise FalhaExternaBCB(
-            f"API do BCB retornou status {resposta.status_code} para {url}"
-        )
+        if tentativa < TENTATIVAS:
+            time.sleep(ESPERA_INICIAL_SEGUNDOS * tentativa)  # 2s, depois 4s
 
-    return resposta.json()
+    raise ultimo_erro
 
 
 def listar_atas(quantidade=1):
