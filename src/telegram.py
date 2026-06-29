@@ -46,5 +46,14 @@ def enviar_mensagem(texto, token=None, chat_id=None):
     chat_id = chat_id or os.environ.get("TELEGRAM_CHAT_ID")
 
     blocos = _dividir_em_blocos(texto)
-    for bloco in blocos:
-        _enviar_bloco(bloco, token, chat_id)
+    for indice, bloco in enumerate(blocos, start=1):
+        try:
+            _enviar_bloco(bloco, token, chat_id)
+        except FalhaExternaTelegram as exc:
+            # Se a mensagem foi dividida em vários blocos e falhar no meio, os blocos
+            # anteriores já foram entregues — uma nova tentativa reenvia a mensagem
+            # inteira, podendo duplicar o início. Risco aceito (raro e de baixo impacto),
+            # mas registrado explicitamente para facilitar diagnóstico se ocorrer.
+            raise FalhaExternaTelegram(
+                f"Falha ao enviar bloco {indice}/{len(blocos)}: {exc}"
+            ) from exc
