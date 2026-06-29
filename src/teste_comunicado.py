@@ -1,12 +1,12 @@
 """Script avulso para testar gerar_mensagens_comunicado contra um Comunicado real do
 BCB, sem afetar estado.json nem historico/. Uso: python -m src.teste_comunicado <nro_reuniao>
-[--selic-anterior X] [--data-publicacao DD/MM/AAAA]
+[--selic-anterior X] [--data-publicacao DD/MM/AAAA] [--mensagens 1,2]
 """
 
 import argparse
 import logging
 
-from src import bcb_client
+from src import bcb_client, historico
 from src.analise import gerar_mensagens_comunicado
 from src.telegram import enviar_mensagem
 
@@ -19,18 +19,36 @@ def main():
     parser.add_argument("nro_reuniao", type=int)
     parser.add_argument("--selic-anterior", default=None)
     parser.add_argument("--data-publicacao", default=None)
+    parser.add_argument(
+        "--mensagens",
+        default="1,2",
+        help="Quais mensagens enviar, separadas por vírgula (ex.: 2 ou 1,2). Padrão: 1,2.",
+    )
     args = parser.parse_args()
+    mensagens_a_enviar = {int(m) for m in args.mensagens.split(",")}
+
+    selic_anterior = args.selic_anterior
+    if selic_anterior is None:
+        comunicado_anterior = historico.carregar_publicacao_anterior(
+            "comunicado", args.nro_reuniao
+        )
+        if comunicado_anterior:
+            selic_anterior = comunicado_anterior.get("selic_resultante")
 
     detalhes = bcb_client.detalhes_comunicado(args.nro_reuniao)
     texto_bruto = detalhes.get("textoComunicado", "")
     data_publicacao = args.data_publicacao or detalhes.get("dataReferencia", "")
 
     mensagem1, mensagem2 = gerar_mensagens_comunicado(
-        texto_bruto, args.nro_reuniao, data_publicacao, args.selic_anterior
+        texto_bruto, args.nro_reuniao, data_publicacao, selic_anterior
     )
 
-    enviar_mensagem(f"🧪 *TESTE — não afeta estado/histórico*\n\n{mensagem1}")
-    enviar_mensagem(mensagem2)
+    prefixo = "🧪 *TESTE — não afeta estado/histórico*\n\n"
+    if 1 in mensagens_a_enviar:
+        enviar_mensagem(f"{prefixo}{mensagem1}")
+        prefixo = ""
+    if 2 in mensagens_a_enviar:
+        enviar_mensagem(f"{prefixo}{mensagem2}" if prefixo else mensagem2)
     logger.info("Teste do Comunicado %s enviado com sucesso", args.nro_reuniao)
 
 

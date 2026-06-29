@@ -9,6 +9,9 @@ on:
       analise_anterior_de:
         description: "Número da reunião anterior para comparação de tom (opcional)"
         required: false
+      mensagens:
+        description: "Quais mensagens enviar, separadas por vírgula (ex.: 2 ou 1,3). Padrão: 1,2,3,4."
+        required: false
 
 permissions:
   contents: read
@@ -35,4 +38,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python -m src.teste_ata "${{ github.event.inputs.nro_reuniao }}" \
-            ${{ github.event.inputs.analise_anterior_de && format('--analise-anterior-de {0}', github.event.inputs.analise_anterior_de) || '' }}
+            ${{ github.event.inputs.analise_anterior_de && format('--analise-anterior-de {0}', github.event.inputs.analise_anterior_de) || '' }} \
+            ${{ github.event.inputs.mensagens && format('--mensagens {0}', github.event.inputs.mensagens) || '' }}

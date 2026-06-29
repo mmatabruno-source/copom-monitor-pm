@@ -12,6 +12,9 @@ on:
       data_publicacao:
         description: "Data de publicação (DD/MM/AAAA), opcional"
         required: false
+      mensagens:
+        description: "Quais mensagens enviar, separadas por vírgula (ex.: 2 ou 1,2). Padrão: 1,2."
+        required: false
 
 permissions:
   contents: read
@@ -39,4 +42,5 @@ jobs:
         run: |
           python -m src.teste_comunicado "${{ github.event.inputs.nro_reuniao }}" \
             ${{ github.event.inputs.selic_anterior && format('--selic-anterior {0}', github.event.inputs.selic_anterior) || '' }} \
-            ${{ github.event.inputs.data_publicacao && format('--data-publicacao {0}', github.event.inputs.data_publicacao) || '' }}
+            ${{ github.event.inputs.data_publicacao && format('--data-publicacao {0}', github.event.inputs.data_publicacao) || '' }} \
+            ${{ github.event.inputs.mensagens && format('--mensagens {0}', github.event.inputs.mensagens) || '' }}
