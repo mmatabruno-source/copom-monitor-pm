@@ -38,7 +38,8 @@ def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_
     """Retorna (mensagem1, mensagem2): duas mensagens distintas para o Telegram.
 
     `mensagem1` é a decisão objetiva (Selic antes/depois); `mensagem2` é a explicação
-    do tom, leitura prática, justificativas e riscos de alta/baixa.
+    do tom, leitura prática e justificativas. O balanço de riscos de alta/baixa não entra
+    aqui — fica reservado para a análise da Ata, publicada na semana seguinte.
     """
     contexto_selic_anterior = (
         f"A taxa Selic vigente antes desta reunião era {selic_anterior}% a.a.; use esse valor "
@@ -80,18 +81,9 @@ def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_
         "relevantes para uma decisão de portfólio, mesmo que o Comunicado apresente mais "
         "pontos), cada um em UMA frase curta reescrevendo o motivo apresentado pelo Copom — o "
         "porquê, não só o fato —, sem desdobramentos, contexto adicional ou exemplos.\n\n"
-        "🔴 *Risco de ALTA para a inflação*:\n\n"
-        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
-        "itens numerados no texto original do Comunicado para os riscos de alta — nem mais "
-        "nem menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
-        "desdobramentos, contexto adicional ou exemplos.\n\n"
-        "🟢 *Risco de BAIXA para a inflação*:\n\n"
-        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
-        "itens numerados no texto original do Comunicado para os riscos de baixa — nem mais "
-        "nem menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
-        "desdobramentos, contexto adicional ou exemplos.\n\n"
         f"Resumo feito com Claude Sonnet 4.6 a partir do comunicado de {data_publicacao} do "
-        "Banco Central.\n\n"
+        "Banco Central. Na próxima semana, você receberá maiores explicações, partindo da "
+        "Ata emitida pelo próprio Bacen.\n\n"
         "Regras para a Mensagem 2:\n"
         "- Contorne termos difíceis sempre que houver alternativa simples em português (ex.: "
         "prefira \"preço do dólar\" a \"câmbio\", \"juros\" a termos técnicos evitáveis, "
