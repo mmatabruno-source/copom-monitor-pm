@@ -12,6 +12,36 @@ nova Ata, gera uma análise via API da Anthropic e notifica via Telegram. O cont
 que já foi processado fica em `estado.json`; o conteúdo bruto e a análise de cada
 publicação ficam salvos permanentemente em `historico/`.
 
+### Mapa do código (`src/`)
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `main.py` | Orquestra a verificação: checa Comunicado e Ata, decide o que processar |
+| `bcb_client.py` | Busca dados na API pública do Banco Central (com retry) |
+| `analise.py` | Monta os prompts e chama a API da Anthropic para gerar as mensagens |
+| `telegram.py` | Envia as mensagens, dividindo em blocos se passar de 4096 caracteres |
+| `historico.py` | Salva e lê as publicações já processadas (`historico/`) |
+| `estado.py` | Guarda o último `nro_reuniao` processado de cada tipo (`estado.json`) |
+| `notificar_falha.py` | Avisa via Telegram quando uma chamada externa falha |
+| `teste_comunicado.py` / `teste_ata.py` | Scripts avulsos para testar mudanças de prompt sem afetar `estado.json`/`historico/` |
+
+### Por que as coisas foram feitas assim — documentação de decisões
+
+Este projeto foi construído com Spec-Driven Development (GitHub Spec Kit): toda decisão
+relevante — e o porquê dela — está documentada em `specs/001-monitor-decisoes-copom/`
+**antes** de qualquer linha de código ser escrita. Para entender o raciocínio por trás
+de uma escolha (não só o que o código faz, mas por que foi feito assim), comece por:
+
+| Documento | O que você encontra ali |
+|---|---|
+| [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | Princípios não-negociáveis do projeto (custo zero, idempotência, fonte de verdade é sempre a API, etc.) |
+| [`specs/001-monitor-decisoes-copom/spec.md`](specs/001-monitor-decisoes-copom/spec.md) | Requisitos funcionais, histórias de usuário e as clarificações que resolveram ambiguidades |
+| [`specs/001-monitor-decisoes-copom/plan.md`](specs/001-monitor-decisoes-copom/plan.md) | Decisões técnicas (stack, armazenamento, agendamento do cron) e por que foram tomadas |
+| [`specs/001-monitor-decisoes-copom/contracts/`](specs/001-monitor-decisoes-copom/contracts/) | Contratos das APIs externas (BCB, Anthropic, Telegram) — inclusive as inconsistências de nomenclatura entre Comunicado e Ata |
+| [`specs/001-monitor-decisoes-copom/research.md`](specs/001-monitor-decisoes-copom/research.md) | Pesquisa e alternativas consideradas antes de cada decisão técnica |
+| [`specs/001-monitor-decisoes-copom/tasks.md`](specs/001-monitor-decisoes-copom/tasks.md) | Quebra de tarefas que guiou a implementação, tarefa por tarefa |
+| [`CLAUDE.md`](CLAUDE.md) | Como o projeto é mantido com IA (Claude Code) e a metodologia adotada |
+
 ## Configuração necessária
 
 Em Settings → Secrets and variables → Actions do repositório, cadastre:
