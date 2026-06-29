@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-28
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Quero monitorar quando o Banco Central do Brasil publica um novo Comunicado ou uma nova Ata do Copom, e me notificar via Telegram com uma análise crítica, orientada a um Product Manager de investimentos, com histórico permanente das publicações."
 
