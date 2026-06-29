@@ -39,7 +39,7 @@ def main():
             "Sem histórico local — buscando Selic anterior via Comunicado da reunião %s na API do BCB",
             args.nro_reuniao - 1,
         )
-        selic_anterior = _buscar_selic_anterior_na_api(args.nro_reuniao)
+        selic_anterior = buscar_selic_anterior_via_api(args.nro_reuniao)
 
     detalhes = bcb_client.detalhes_comunicado(args.nro_reuniao)
     texto_bruto = detalhes.get("textoComunicado", "")
