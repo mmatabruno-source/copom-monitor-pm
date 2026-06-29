@@ -17,7 +17,10 @@ def salvar_estado(ultima_ata=None, ultimo_comunicado=None):
         estado["ultima_ata"] = ultima_ata
     if ultimo_comunicado is not None:
         estado["ultimo_comunicado"] = ultimo_comunicado
-    with open(ESTADO_PATH, "w", encoding="utf-8") as f:
+
+    arquivo_temporario = f"{ESTADO_PATH}.tmp"
+    with open(arquivo_temporario, "w", encoding="utf-8") as f:
         json.dump(estado, f, ensure_ascii=False, indent=2)
         f.write("\n")
+    os.replace(arquivo_temporario, ESTADO_PATH)  # grava tudo ou nada, nunca um arquivo pela metade
     return estado
