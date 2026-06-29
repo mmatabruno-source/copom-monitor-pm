@@ -82,8 +82,13 @@ o Telegram a partir de uma reunião real do Copom, **sem** alterar `estado.json`
 ## Se algo der errado
 
 - **O robô parou de notificar**: confira se o workflow `Monitor Copom` está rodando em
-  Actions → o GitHub desativa automaticamente cron jobs de repositórios inativos por
-  60+ dias. Se isso acontecer, basta reativar manualmente em Settings → Actions.
+  Actions → o GitHub desativa automaticamente cron jobs de repositórios sem nenhum commit
+  por 60+ dias (a execução do próprio cron NÃO conta como atividade para esse efeito).
+  Como o Monitor Copom só comita quando há publicação nova (~16x/ano), isso seria um risco
+  real; por isso existe o workflow `.github/workflows/keepalive.yml`, que roda a cada 30
+  dias e cria um commit vazio só para resetar esse contador — não deveria ser necessário
+  reativar nada manualmente, mas se mesmo assim acontecer, basta reativar em Settings →
+  Actions.
 - **Uma chamada externa falhou** (API do BCB, Anthropic ou Telegram): o robô tenta de
   novo automaticamente (API do BCB) ou aborta sem marcar a publicação como processada,
   de forma que a próxima execução do cron tenta de novo sozinha. Você deve receber um

@@ -1,0 +1,33 @@
+name: Keepalive
+
+# Existe só para evitar que o GitHub desative automaticamente o cron do
+# Monitor Copom: o GitHub desliga workflows agendados após 60 dias sem
+# nenhum commit no repositório, e a execução do cron em si NÃO conta como
+# atividade — só commits/PRs/issues contam. Como o Monitor Copom só comita
+# quando há publicação nova (~16x/ano), passar 60 dias sem reunião do
+# Copom seria suficiente para o cron ser desativado silenciosamente.
+# Este workflow roda a cada 30 dias e cria um commit vazio (sem alterar
+# nenhum arquivo) só para resetar esse contador.
+
+on:
+  schedule:
+    - cron: "0 6 1,15 * *" # todo dia 1 e 15 do mês — bem dentro da janela de 60 dias
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  manter-ativo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Commit vazio para manter o repositório ativo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: keepalive para evitar desativação automática do cron [skip ci]"
+          git pull --rebase --autostash origin main
+          git push

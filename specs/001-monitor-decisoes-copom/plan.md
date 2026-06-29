@@ -101,7 +101,10 @@ tests/
     └── test_main_fluxo_completo.py   # chamadas externas mockadas
 
 .github/workflows/
-└── monitor-copom.yml     # 3 entradas de schedule + concurrency + permissions: contents: write
+├── monitor-copom.yml     # 3 entradas de schedule + concurrency + permissions: contents: write
+└── keepalive.yml         # Commit vazio a cada 30 dias — evita que o GitHub desative o
+                          # cron por 60+ dias sem commit (execução do cron não conta como
+                          # atividade); não interfere no fluxo funcional do monitor
 
 historico/
 ├── comunicados/
