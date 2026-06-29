@@ -23,7 +23,7 @@ def main():
 
     detalhes = bcb_client.detalhes_comunicado(args.nro_reuniao)
     texto_bruto = detalhes.get("textoComunicado", "")
-    data_publicacao = args.data_publicacao or detalhes.get("dataPublicacao", "")
+    data_publicacao = args.data_publicacao or detalhes.get("dataReferencia", "")
 
     mensagem1, mensagem2 = gerar_mensagens_comunicado(
         texto_bruto, args.nro_reuniao, data_publicacao, args.selic_anterior

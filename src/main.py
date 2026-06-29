@@ -79,7 +79,9 @@ def verificar_comunicado():
 
     comunicado = {**comunicado_recente, **detalhes}
     texto_bruto = comunicado.get("texto_bruto") or comunicado.get("textoComunicado", "")
-    data_publicacao = comunicado.get("dataPublicacao", "")
+    # Comunicado não tem campo "dataPublicacao" na API do BCB (diferente de Ata) —
+    # usamos "dataReferencia" (data da reunião) no cabeçalho da mensagem 1.
+    data_publicacao = comunicado.get("dataReferencia", "")
 
     comunicado_anterior = historico.carregar_publicacao_anterior("comunicado", nro_reuniao)
     selic_anterior = comunicado_anterior.get("selic_resultante") if comunicado_anterior else None
