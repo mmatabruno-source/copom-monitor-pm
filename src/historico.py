@@ -16,15 +16,19 @@ def _caminho(tipo, nro_reuniao, extensao):
     return os.path.join(diretorio, f"{nro_reuniao}.{extensao}")
 
 
+def _escrever_atomico(caminho, conteudo):
+    arquivo_temporario = f"{caminho}.tmp"
+    with open(arquivo_temporario, "w", encoding="utf-8") as f:
+        f.write(conteudo)
+    os.replace(arquivo_temporario, caminho)  # grava tudo ou nada, nunca um arquivo pela metade
+
+
 def salvar_publicacao(tipo, nro_reuniao, dados, markdown):
     caminho_json = _caminho(tipo, nro_reuniao, "json")
-    with open(caminho_json, "w", encoding="utf-8") as f:
-        json.dump(dados, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    _escrever_atomico(caminho_json, json.dumps(dados, ensure_ascii=False, indent=2) + "\n")
 
     caminho_md = _caminho(tipo, nro_reuniao, "md")
-    with open(caminho_md, "w", encoding="utf-8") as f:
-        f.write(markdown)
+    _escrever_atomico(caminho_md, markdown)
 
     return caminho_json, caminho_md
 
