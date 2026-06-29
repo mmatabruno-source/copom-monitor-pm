@@ -1,4 +1,5 @@
 import os
+import re
 
 import anthropic
 
@@ -32,6 +33,12 @@ def _chamar_claude(prompt):
 
 
 SEPARADOR_COMUNICADO = "===DETALHE_COMUNICADO==="
+
+
+def extrair_selic_resultante(mensagem1):
+    """Extrai o valor da Selic resultante (linha "Depois:") da mensagem 1 do Comunicado."""
+    match = re.search(r"\*Depois:\*\s*([\d,.]+)%", mensagem1)
+    return match.group(1) if match else None
 
 
 def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_anterior=None):

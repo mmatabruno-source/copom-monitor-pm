@@ -1,10 +1,10 @@
 import logging
-import re
 
 from src import bcb_client, estado, historico
 from src.analise import (
     FalhaExternaAnthropic,
     extrair_secoes_ata,
+    extrair_selic_resultante,
     gerar_analise_ata,
     gerar_mensagens_comunicado,
 )
@@ -27,11 +27,6 @@ def _renderizar_md_comunicado(comunicado, mensagem1, mensagem2):
         f"- Data de publicação: {comunicado.get('dataPublicacao')}\n\n"
         f"## Texto bruto\n\n{comunicado.get('texto_bruto', '')}\n"
     )
-
-
-def _extrair_selic_resultante(mensagem1):
-    match = re.search(r"\*Depois:\*\s*([\d,.]+)%", mensagem1)
-    return match.group(1) if match else None
 
 
 def _renderizar_md_ata(ata, mensagem1, mensagem2, mensagem3, mensagem4):
@@ -103,7 +98,7 @@ def verificar_comunicado():
         return False
 
     comunicado["analise"] = f"{mensagem1}\n\n{mensagem2}"
-    comunicado["selic_resultante"] = _extrair_selic_resultante(mensagem1)
+    comunicado["selic_resultante"] = extrair_selic_resultante(mensagem1)
     md = _renderizar_md_comunicado(comunicado, mensagem1, mensagem2)
     historico.salvar_publicacao("comunicado", nro_reuniao, comunicado, md)
 
