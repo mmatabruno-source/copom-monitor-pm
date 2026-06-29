@@ -103,7 +103,10 @@ def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_
         "Regras para as duas mensagens:\n"
         "- Priorize concisão acima de tudo: frases curtas e diretas, cortando qualquer "
         "informação que não seja essencial para uma decisão de portfólio.\n"
-        "- Seja direto, sem introduções genéricas e sem redundância entre as duas mensagens.\n\n"
+        "- Seja direto, sem introduções genéricas e sem redundância entre as duas mensagens.\n"
+        "- Em cada bullet/seção no formato \"emoji *Rótulo*: texto\", a primeira palavra "
+        "depois dos dois-pontos começa com letra minúscula (salvo nomes próprios ou siglas), "
+        "como em uma continuação de frase.\n\n"
         f"Texto do Comunicado:\n{texto_bruto}"
     )
 
@@ -196,7 +199,10 @@ def gerar_analise_ata(texto_estruturado, nro_reuniao, data_publicacao, analise_a
         "p.p.), use-o direto, sem explicação. A pesquisa Focus deve ser sempre referida apenas "
         "como \"pesquisa Focus\", sem explicação adicional.\n"
         "- Seja direto e acionável: cada seção deve ajudar a decidir algo, não só descrever.\n"
-        "- Não inclua introduções genéricas.\n\n"
+        "- Não inclua introduções genéricas.\n"
+        "- Em cada bullet/seção no formato \"emoji *Rótulo*: texto\", a primeira palavra "
+        "depois dos dois-pontos começa com letra minúscula (salvo nomes próprios ou siglas), "
+        "como em uma continuação de frase.\n\n"
         f"Texto da Ata atual:\n{texto_estruturado}"
     )
 
