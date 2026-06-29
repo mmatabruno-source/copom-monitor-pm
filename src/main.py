@@ -3,6 +3,7 @@ import logging
 from src import bcb_client, estado, historico
 from src.analise import (
     FalhaExternaAnthropic,
+    buscar_selic_anterior_via_api,
     extrair_secoes_ata,
     extrair_selic_resultante,
     gerar_analise_ata,
@@ -80,6 +81,19 @@ def verificar_comunicado():
 
     comunicado_anterior = historico.carregar_publicacao_anterior("comunicado", nro_reuniao)
     selic_anterior = comunicado_anterior.get("selic_resultante") if comunicado_anterior else None
+    if selic_anterior is None:
+        # Cold start (nenhum Comunicado processado ainda) ou histórico perdido — busca
+        # a Selic resultante do Comunicado anterior direto na API do BCB.
+        try:
+            selic_anterior = buscar_selic_anterior_via_api(nro_reuniao)
+        except FalhaExternaBCB as exc:
+            logger.warning(
+                "Falha ao buscar Selic anterior via API para Comunicado %s: %s", nro_reuniao, exc
+            )
+        except FalhaExternaAnthropic as exc:
+            logger.warning(
+                "Falha ao gerar análise do Comunicado anterior para extrair Selic: %s", exc
+            )
 
     try:
         mensagem1, mensagem2 = gerar_mensagens_comunicado(

@@ -3,6 +3,8 @@ import re
 
 import anthropic
 
+from src import bcb_client
+
 MODELO = "claude-sonnet-4-6"
 
 
@@ -120,6 +122,25 @@ def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_
         mensagem1, mensagem2 = texto, ""
 
     return mensagem1.strip(), mensagem2.strip()
+
+
+def buscar_selic_anterior_via_api(nro_reuniao):
+    """Fallback para quando não há histórico local do Comunicado anterior: gera a
+    mensagem do Comunicado da reunião anterior diretamente a partir da API do BCB,
+    só para extrair a Selic resultante. Usado tanto em produção (cold start, quando
+    ainda não há nada em historico/comunicados/) quanto nos scripts de teste.
+    """
+    nro_anterior = nro_reuniao - 1
+    detalhes_anterior = bcb_client.detalhes_comunicado(nro_anterior)
+    texto_anterior = detalhes_anterior.get("textoComunicado", "")
+    if not texto_anterior:
+        return None
+
+    data_anterior = detalhes_anterior.get("dataReferencia", "")
+    mensagem1_anterior, _ = gerar_mensagens_comunicado(
+        texto_anterior, nro_anterior, data_anterior, None
+    )
+    return extrair_selic_resultante(mensagem1_anterior)
 
 
 def extrair_secoes_ata(texto_ata_html):

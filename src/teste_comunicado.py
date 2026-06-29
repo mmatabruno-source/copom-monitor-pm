@@ -7,28 +7,11 @@ import argparse
 import logging
 
 from src import bcb_client, historico
-from src.analise import extrair_selic_resultante, gerar_mensagens_comunicado
+from src.analise import buscar_selic_anterior_via_api, gerar_mensagens_comunicado
 from src.telegram import enviar_mensagem
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def _buscar_selic_anterior_na_api(nro_reuniao):
-    """Fallback para quando não há histórico local: gera a mensagem do Comunicado
-    anterior diretamente a partir da API do BCB só para extrair a Selic resultante.
-    """
-    nro_anterior = nro_reuniao - 1
-    detalhes_anterior = bcb_client.detalhes_comunicado(nro_anterior)
-    texto_anterior = detalhes_anterior.get("textoComunicado", "")
-    if not texto_anterior:
-        return None
-
-    data_anterior = detalhes_anterior.get("dataReferencia", "")
-    mensagem1_anterior, _ = gerar_mensagens_comunicado(
-        texto_anterior, nro_anterior, data_anterior, None
-    )
-    return extrair_selic_resultante(mensagem1_anterior)
 
 
 def main():
