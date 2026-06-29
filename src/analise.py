@@ -106,7 +106,9 @@ def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_
         "- Seja direto, sem introduções genéricas e sem redundância entre as duas mensagens.\n"
         "- Em cada bullet/seção no formato \"emoji *Rótulo*: texto\", a primeira palavra "
         "depois dos dois-pontos começa com letra minúscula (salvo nomes próprios ou siglas), "
-        "como em uma continuação de frase.\n\n"
+        "como em uma continuação de frase.\n"
+        "- Não use negrito (*texto*) em nenhum outro lugar além dos rótulos de seção já "
+        "especificados nos templates acima.\n\n"
         f"Texto do Comunicado:\n{texto_bruto}"
     )
 
@@ -165,12 +167,12 @@ def gerar_analise_ata(texto_estruturado, nro_reuniao, data_publicacao, analise_a
         "do dólar / câmbio, bolsa e crédito privado, cada um em 1 frase curta.\n\n"
         f"{SEPARADOR_ATA_1}\n\n"
         "MENSAGEM 2 — balanço de riscos, sem repetir o que já foi dito na Mensagem 1:\n\n"
-        "🔴 *Risco de ALTA para a inflação*:\n\n"
+        "🔴 *Riscos de ALTA para a inflação*:\n\n"
         "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
         "itens numerados no texto original da Ata para os riscos de alta — nem mais nem "
         "menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
         "desdobramentos, contexto adicional ou exemplos.\n\n"
-        "🟢 *Risco de BAIXA para a inflação*:\n\n"
+        "🟢 *Riscos de BAIXA para a inflação*:\n\n"
         "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
         "itens numerados no texto original da Ata para os riscos de baixa — nem mais nem "
         "menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
@@ -202,7 +204,9 @@ def gerar_analise_ata(texto_estruturado, nro_reuniao, data_publicacao, analise_a
         "- Não inclua introduções genéricas.\n"
         "- Em cada bullet/seção no formato \"emoji *Rótulo*: texto\", a primeira palavra "
         "depois dos dois-pontos começa com letra minúscula (salvo nomes próprios ou siglas), "
-        "como em uma continuação de frase.\n\n"
+        "como em uma continuação de frase.\n"
+        "- Não use negrito (*texto*) em nenhum outro lugar além dos rótulos de seção já "
+        "especificados nos templates acima.\n\n"
         f"Texto da Ata atual:\n{texto_estruturado}"
     )
 
