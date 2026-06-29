@@ -30,11 +30,16 @@ def main():
 
     detalhes = bcb_client.detalhes_ata(args.nro_reuniao)
     texto_estruturado = extrair_secoes_ata(detalhes.get("textoAta", ""))
+    data_publicacao = detalhes.get("dataPublicacao", "")
 
-    resumo, detalhe = gerar_analise_ata(texto_estruturado, analise_ata_anterior)
+    mensagem1, mensagem2, mensagem3, mensagem4 = gerar_analise_ata(
+        texto_estruturado, args.nro_reuniao, data_publicacao, analise_ata_anterior
+    )
 
-    enviar_mensagem(f"🧪 *TESTE — não afeta estado/histórico*\n\n{resumo}")
-    enviar_mensagem(detalhe)
+    enviar_mensagem(f"🧪 *TESTE — não afeta estado/histórico*\n\n{mensagem1}")
+    enviar_mensagem(mensagem2)
+    enviar_mensagem(mensagem3)
+    enviar_mensagem(mensagem4)
     logger.info("Teste da Ata %s enviado com sucesso", args.nro_reuniao)
 
 

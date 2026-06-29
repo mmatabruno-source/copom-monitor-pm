@@ -128,18 +128,18 @@ def extrair_secoes_ata(texto_ata_html):
     return texto_ata_html
 
 
-SEPARADOR_ATA = "===DETALHE==="
+SEPARADOR_ATA_1 = "===RISCOS==="
+SEPARADOR_ATA_2 = "===DIAGNOSTICO==="
+SEPARADOR_ATA_3 = "===EXPECTATIVAS==="
 
 
-def gerar_analise_ata(texto_estruturado, analise_ata_anterior=None):
-    """Retorna (resumo, detalhe): duas mensagens distintas para o Telegram.
-
-    `resumo` é curto e escaneável (decisão + sugestão de investimento + leitura por ativo);
-    `detalhe` é mais longo mas direto, sem repetir o conteúdo do resumo.
+def gerar_analise_ata(texto_estruturado, nro_reuniao, data_publicacao, analise_ata_anterior=None):
+    """Retorna (mensagem1, mensagem2, mensagem3, mensagem4): quatro mensagens distintas
+    para o Telegram, sem repetir conteúdo entre si.
     """
     instrucoes_comparacao = (
-        "Compare explicitamente com a sinalização da Ata anterior fornecida abaixo, "
-        "indicando o que mudou."
+        "Compare explicitamente com a análise da Ata anterior fornecida abaixo, indicando "
+        "o que mudou na sinalização do Copom."
         if analise_ata_anterior
         else "Não há Ata anterior processada no histórico; omita qualquer comparação."
     )
@@ -147,28 +147,47 @@ def gerar_analise_ata(texto_estruturado, analise_ata_anterior=None):
     prompt = (
         "Você é um analista de investimentos especializado em política monetária brasileira, "
         "escrevendo para mensagens de Telegram. Use Markdown do Telegram (*negrito*, sem "
-        "cabeçalhos #, sem tabelas). Com base na Ata do Copom abaixo, gere DUAS mensagens "
-        "distintas em português. Separe-as exatamente com uma linha contendo só "
-        f"\"{SEPARADOR_ATA}\" (nada mais nessa linha).\n\n"
-        "MENSAGEM 1 — resumo executivo, curto e escaneável (poucas frases por seção), "
-        "nesta ordem:\n"
-        "*Decisão do Copom*: retome muito brevemente a decisão (Selic, variação, votação) "
-        "em 1-2 frases.\n"
-        "*Sugestão para investimentos*: 2-3 frases objetivas e acionáveis sobre como "
-        "posicionar portfólio diante dessa decisão.\n"
-        "*Leitura por classe de ativo*: bullets curtos para renda fixa, câmbio, bolsa e "
-        "crédito privado.\n\n"
-        f"{SEPARADOR_ATA}\n\n"
-        "MENSAGEM 2 — análise completa, direta e acionável, sem repetir o que já foi dito "
-        "na Mensagem 1, nesta ordem:\n"
-        "*Diagnóstico do Copom*: só os pontos de atividade, inflação, expectativas da pesquisa "
-        "Focus, fiscal e externo que são relevantes para decisão de portfólio.\n"
-        "*Balanço de riscos*: principais riscos de alta e de baixa para a Selic.\n"
-        f"*Sinalização sobre os próximos passos*: o que o Copom indicou. "
-        f"{instrucoes_comparacao}\n"
-        "*Mensagem pronta para cliente*: 2-3 frases que o leitor pode copiar e adaptar para "
-        "comunicar a um cliente.\n\n"
-        "Regras para as duas mensagens:\n"
+        "cabeçalhos #, sem tabelas). Com base na Ata do Copom abaixo, gere QUATRO mensagens "
+        "distintas em português. Separe-as exatamente com uma linha contendo só o separador "
+        "indicado entre cada uma (nada mais nessa linha).\n\n"
+        "MENSAGEM 1 — resumo executivo, curto e escaneável, nesta ordem:\n"
+        f"🔎 *Ata do Copom (R. {nro_reuniao}) - {data_publicacao}*\n\n"
+        "🗣️ *Decisão*: retome muito brevemente a decisão (Selic, variação, votação) em "
+        "1-2 frases.\n\n"
+        "💰 *Impacto nos Investimentos*: 2-3 frases objetivas e acionáveis sobre como "
+        "posicionar portfólio diante dessa decisão.\n\n"
+        "📊 *Leitura por classe de ativo*:\n\n"
+        "Bullets com \"▪️\" para renda fixa pós fixada, renda fixa prefixada/IPCA+, preço "
+        "do dólar / câmbio, bolsa e crédito privado, cada um em 1 frase curta.\n\n"
+        f"{SEPARADOR_ATA_1}\n\n"
+        "MENSAGEM 2 — balanço de riscos, sem repetir o que já foi dito na Mensagem 1:\n\n"
+        "🔴 *Risco de ALTA para a inflação*:\n\n"
+        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
+        "itens numerados no texto original da Ata para os riscos de alta — nem mais nem "
+        "menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
+        "desdobramentos, contexto adicional ou exemplos.\n\n"
+        "🟢 *Risco de BAIXA para a inflação*:\n\n"
+        "Bullets com \"▪️ (i)\", \"▪️ (ii)\" etc., usando exatamente a mesma quantidade de "
+        "itens numerados no texto original da Ata para os riscos de baixa — nem mais nem "
+        "menos —, cada um em UMA frase curta reescrevendo o mecanismo causal, sem "
+        "desdobramentos, contexto adicional ou exemplos.\n\n"
+        "➡️ *Conclusão*: 1 frase indicando se o balanço está assimétrico (para cima ou para "
+        "baixo) ou equilibrado, conforme indicado pelo Copom.\n\n"
+        f"{SEPARADOR_ATA_2}\n\n"
+        "MENSAGEM 3 — diagnóstico econômico, sem repetir o que já foi dito nas mensagens "
+        "anteriores:\n\n"
+        "🏦 *Diagnóstico econômico*:\n\n"
+        "Bullets com \"▪️\" e subtítulo em negrito, cobrindo apenas os tópicos (entre "
+        "Atividade, Mercado de trabalho, Inflação, Pesquisa Focus, Fiscal e Cenário externo) "
+        "que a Ata efetivamente trata e que são relevantes para uma decisão de portfólio — "
+        "omita os que não tiverem conteúdo relevante. Cada bullet deve ser direto e "
+        "informativo, sem se limitar a 1 frase quando o conteúdo exigir mais detalhe.\n\n"
+        f"{SEPARADOR_ATA_3}\n\n"
+        "MENSAGEM 4 — expectativas para próximas decisões, sem repetir o que já foi dito nas "
+        "mensagens anteriores:\n\n"
+        "📍 *Expectativas para próximas decisões*: o que o Copom indicou sobre o ritmo ou "
+        f"direção dos próximos passos. {instrucoes_comparacao}\n\n"
+        "Regras para as quatro mensagens:\n"
         "- Contorne termos difíceis sempre que houver alternativa simples em português (ex.: "
         "prefira \"preço do dólar\" a \"câmbio\", \"sem sinalização explícita sobre os "
         "próximos passos\" a \"forward guidance\", evite \"hawkish/dovish\"). Não explique "
@@ -185,9 +204,16 @@ def gerar_analise_ata(texto_estruturado, analise_ata_anterior=None):
 
     texto = _chamar_claude(prompt)
 
-    if SEPARADOR_ATA in texto:
-        resumo, detalhe = texto.split(SEPARADOR_ATA, 1)
-    else:  # fallback defensivo — não deveria ocorrer, mas evita perder a notificação
-        resumo, detalhe = texto, ""
+    partes = texto.split(SEPARADOR_ATA_1, 1)
+    mensagem1 = partes[0]
+    resto = partes[1] if len(partes) > 1 else ""
 
-    return resumo.strip(), detalhe.strip()
+    partes = resto.split(SEPARADOR_ATA_2, 1)
+    mensagem2 = partes[0]
+    resto = partes[1] if len(partes) > 1 else ""
+
+    partes = resto.split(SEPARADOR_ATA_3, 1)
+    mensagem3 = partes[0]
+    mensagem4 = partes[1] if len(partes) > 1 else ""
+
+    return mensagem1.strip(), mensagem2.strip(), mensagem3.strip(), mensagem4.strip()

@@ -34,11 +34,13 @@ def _extrair_selic_resultante(mensagem1):
     return match.group(1) if match else None
 
 
-def _renderizar_md_ata(ata, resumo, detalhe):
+def _renderizar_md_ata(ata, mensagem1, mensagem2, mensagem3, mensagem4):
     return (
         f"# Ata — Reunião {ata['nroReuniao']}\n\n"
-        f"## Resumo executivo\n\n{resumo}\n\n"
-        f"## Análise completa\n\n{detalhe}\n\n"
+        f"## Resumo executivo\n\n{mensagem1}\n\n"
+        f"## Balanço de riscos\n\n{mensagem2}\n\n"
+        f"## Diagnóstico econômico\n\n{mensagem3}\n\n"
+        f"## Expectativas para próximas decisões\n\n{mensagem4}\n\n"
         f"## Dados\n\n"
         f"- Data de referência: {ata.get('dataReferencia')}\n"
         f"- Data de publicação: {ata.get('dataPublicacao')}\n"
@@ -144,25 +146,29 @@ def verificar_ata():
 
     ata_anterior = historico.carregar_publicacao_anterior("ata", nro_reuniao)
     analise_ata_anterior = ata_anterior.get("analise") if ata_anterior else None
+    data_publicacao = ata.get("dataPublicacao", "")
 
     try:
-        resumo, detalhe = gerar_analise_ata(texto_estruturado, analise_ata_anterior)
+        mensagem1, mensagem2, mensagem3, mensagem4 = gerar_analise_ata(
+            texto_estruturado, nro_reuniao, data_publicacao, analise_ata_anterior
+        )
     except FalhaExternaAnthropic as exc:
         logger.error("Falha ao gerar análise da Ata %s: %s", nro_reuniao, exc)
         notificar_falha(f"geração de análise da Ata {nro_reuniao}", exc)
         return False
 
-    mensagem_resumo = f"📄 Nova Ata do Copom (Reunião {nro_reuniao})\n\n{resumo}"
     try:
-        enviar_mensagem(mensagem_resumo)
-        enviar_mensagem(detalhe)
+        enviar_mensagem(mensagem1)
+        enviar_mensagem(mensagem2)
+        enviar_mensagem(mensagem3)
+        enviar_mensagem(mensagem4)
     except FalhaExternaTelegram as exc:
         logger.error("Falha ao notificar Ata %s via Telegram: %s", nro_reuniao, exc)
         return False
 
-    analise = f"{resumo}\n\n{detalhe}"
+    analise = f"{mensagem1}\n\n{mensagem2}\n\n{mensagem3}\n\n{mensagem4}"
     ata["analise"] = analise
-    md = _renderizar_md_ata(ata, resumo, detalhe)
+    md = _renderizar_md_ata(ata, mensagem1, mensagem2, mensagem3, mensagem4)
     historico.salvar_publicacao("ata", nro_reuniao, ata, md)
 
     estado.salvar_estado(ultima_ata=nro_reuniao)
