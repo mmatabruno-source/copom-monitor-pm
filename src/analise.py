@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 
@@ -6,6 +7,8 @@ import anthropic
 from src import bcb_client
 
 MODELO = "claude-sonnet-4-6"
+
+logger = logging.getLogger(__name__)
 
 
 class FalhaExternaAnthropic(Exception):
@@ -24,7 +27,7 @@ def _chamar_claude(prompt):
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}],
         )
-    except Exception as exc:  # qualquer erro da SDK (timeout, rate limit, 5xx) é falha externa
+    except anthropic.APIError as exc:  # erro reportado pela própria API (timeout, rate limit, 5xx)
         raise FalhaExternaAnthropic(f"Falha na chamada à API da Anthropic: {exc}") from exc
 
     texto = "".join(bloco.text for bloco in resposta.content if hasattr(bloco, "text"))
@@ -40,7 +43,13 @@ SEPARADOR_COMUNICADO = "===DETALHE_COMUNICADO==="
 def extrair_selic_resultante(mensagem1):
     """Extrai o valor da Selic resultante (linha "Depois:") da mensagem 1 do Comunicado."""
     match = re.search(r"\*Depois:\*\s*([\d,.]+)%", mensagem1)
-    return match.group(1) if match else None
+    if not match:
+        logger.warning(
+            "Não foi possível extrair a Selic resultante da mensagem — formato inesperado: %r",
+            mensagem1,
+        )
+        return None
+    return match.group(1)
 
 
 def gerar_mensagens_comunicado(texto_bruto, nro_reuniao, data_publicacao, selic_anterior=None):
