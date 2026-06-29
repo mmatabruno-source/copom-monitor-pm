@@ -45,26 +45,40 @@ def _renderizar_md_ata(ata, mensagem1, mensagem2, mensagem3, mensagem4):
     )
 
 
-def verificar_comunicado():
-    """Processa um novo Comunicado, se houver. Retorna True se algo foi processado."""
+def _listar_pendente(tipo, listar, chave_nro_reuniao, chave_estado):
+    """Busca a publicação mais recente e retorna (nro_reuniao, item) se for nova, ou
+    None se não houver publicação, se a busca falhar, ou se já tiver sido processada.
+    """
     try:
-        lista = bcb_client.listar_comunicados(quantidade=1)
+        lista = listar(quantidade=1)
     except FalhaExternaBCB as exc:
-        logger.error("Falha ao listar Comunicados: %s", exc)
-        notificar_falha("busca de Comunicado na API do BCB", exc)
-        return False
+        logger.error("Falha ao listar %s: %s", tipo, exc)
+        notificar_falha(f"busca de {tipo} na API do BCB", exc)
+        return None
 
     if not lista:
-        return False
+        return None
 
-    comunicado_recente = lista[0]
-    # Comunicado usa "nro_reuniao" (snake_case) — diferente de "nroReuniao" em Atas
-    # (contracts/bcb-api.md, confirmado em 28/06/2026). Não assumir naming consistente.
-    nro_reuniao = comunicado_recente["nro_reuniao"]
+    item_recente = lista[0]
+    nro_reuniao = item_recente[chave_nro_reuniao]
 
     estado_atual = estado.carregar_estado()
-    if estado_atual.get("ultimo_comunicado") == nro_reuniao:
-        return False  # já processado — idempotência (FR-010)
+    if estado_atual.get(chave_estado) == nro_reuniao:
+        return None  # já processado — idempotência (FR-010)
+
+    return nro_reuniao, item_recente
+
+
+def verificar_comunicado():
+    """Processa um novo Comunicado, se houver. Retorna True se algo foi processado."""
+    # Comunicado usa "nro_reuniao" (snake_case) — diferente de "nroReuniao" em Atas
+    # (contracts/bcb-api.md, confirmado em 28/06/2026). Não assumir naming consistente.
+    pendente = _listar_pendente(
+        "Comunicados", bcb_client.listar_comunicados, "nro_reuniao", "ultimo_comunicado"
+    )
+    if pendente is None:
+        return False
+    nro_reuniao, comunicado_recente = pendente
 
     try:
         detalhes = bcb_client.detalhes_comunicado(nro_reuniao)
@@ -122,22 +136,10 @@ def verificar_comunicado():
 
 def verificar_ata():
     """Processa uma nova Ata, se houver. Retorna True se algo foi processado."""
-    try:
-        lista = bcb_client.listar_atas(quantidade=1)
-    except FalhaExternaBCB as exc:
-        logger.error("Falha ao listar Atas: %s", exc)
-        notificar_falha("busca de Ata na API do BCB", exc)
+    pendente = _listar_pendente("Atas", bcb_client.listar_atas, "nroReuniao", "ultima_ata")
+    if pendente is None:
         return False
-
-    if not lista:
-        return False
-
-    ata_recente = lista[0]
-    nro_reuniao = ata_recente["nroReuniao"]
-
-    estado_atual = estado.carregar_estado()
-    if estado_atual.get("ultima_ata") == nro_reuniao:
-        return False  # já processado — idempotência (FR-010)
+    nro_reuniao, ata_recente = pendente
 
     try:
         detalhes = bcb_client.detalhes_ata(nro_reuniao)
