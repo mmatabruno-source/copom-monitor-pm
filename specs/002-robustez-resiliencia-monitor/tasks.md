@@ -100,11 +100,11 @@ mensagens de aviso de falha devolvidas ao usuário.
 
 ### Tests for User Story 3
 
-- [ ] T010 [US3] Estender `tests/unit/test_telegram.py`: forçar uma `requests.RequestException` cujo texto contenha o token e verificar que o texto da `FalhaExternaTelegram` levantada não contém o token (FR-006, SC-003) — depende de T006/T009 já terem ajustado a estrutura de retry em `_enviar_bloco`
+- [X] T010 [US3] Estender `tests/unit/test_telegram.py`: forçar uma `requests.RequestException` cujo texto contenha o token e verificar que o texto da `FalhaExternaTelegram` levantada não contém o token (FR-006, SC-003) — depende de T006/T009 já terem ajustado a estrutura de retry em `_enviar_bloco`
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Em `src/telegram.py`, adicionar uma função de sanitização que substitui qualquer ocorrência do token por `***` no texto de qualquer `FalhaExternaTelegram` levantada a partir de `_enviar_bloco`, cobrindo tanto os logs quanto as mensagens de `notificar_falha` que reaproveitam essa exceção (FR-006, D4) — depende de T009
+- [X] T011 [US3] Em `src/telegram.py`, adicionar uma função de sanitização que substitui qualquer ocorrência do token por `***` no texto de qualquer `FalhaExternaTelegram` levantada a partir de `_enviar_bloco`, cobrindo tanto os logs quanto as mensagens de `notificar_falha` que reaproveitam essa exceção (FR-006, D4) — depende de T009
 
 **Checkpoint**: Nenhum caminho de erro do Telegram expõe o token, nem em log nem em
 mensagem enviada de volta ao usuário.

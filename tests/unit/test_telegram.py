@@ -1,8 +1,15 @@
 from unittest.mock import patch
 
 import pytest
+import requests
 
-from src.telegram import TENTATIVAS, FalhaExternaTelegram, _dividir_em_blocos, enviar_mensagem
+from src.telegram import (
+    TENTATIVAS,
+    FalhaExternaTelegram,
+    _dividir_em_blocos,
+    _enviar_bloco,
+    enviar_mensagem,
+)
 
 
 def test_texto_curto_gera_um_unico_bloco():
@@ -64,3 +71,30 @@ def test_falha_persistente_em_um_bloco_propaga_apos_tentativas(mock_enviar_bloco
         enviar_mensagem("texto curto", token="tok", chat_id="123")
 
     assert mock_enviar_bloco.call_count == TENTATIVAS
+
+
+@patch("src.telegram.requests.post")
+def test_falha_de_conexao_nao_expoe_o_token_na_excecao(mock_post):
+    token = "123456:SEGREDO-DO-BOT"
+    mock_post.side_effect = requests.ConnectionError(
+        f"Max retries exceeded with url: /bot{token}/sendMessage"
+    )
+
+    with pytest.raises(FalhaExternaTelegram) as excinfo:
+        _enviar_bloco("texto", token, "123")
+
+    assert token not in str(excinfo.value)
+
+
+@patch("src.telegram.requests.post")
+def test_falha_de_status_nao_expoe_o_token_na_excecao(mock_post):
+    token = "123456:SEGREDO-DO-BOT"
+    resposta = mock_post.return_value
+    resposta.status_code = 401
+    resposta.json.return_value = {"ok": False}
+    resposta.text = f"Unauthorized: bot{token} não existe"
+
+    with pytest.raises(FalhaExternaTelegram) as excinfo:
+        _enviar_bloco("texto", token, "123")
+
+    assert token not in str(excinfo.value)

@@ -30,17 +30,32 @@ def _dividir_em_blocos(texto, limite=LIMITE_CARACTERES):
     return blocos
 
 
+def _sanitizar(texto, token):
+    """Remove o token do bot de uma string antes que ela vire mensagem de erro/log —
+    o token entra na própria URL da requisição, então qualquer exceção de rede ou corpo
+    de resposta pode reproduzi-lo literalmente (FR-006).
+    """
+    if not token:
+        return texto
+    return texto.replace(token, "***")
+
+
 def _enviar_bloco(texto, token, chat_id):
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {"chat_id": chat_id, "text": texto, "parse_mode": "Markdown"}
     try:
         resposta = requests.post(url, json=payload, timeout=TIMEOUT_SEGUNDOS)
     except requests.RequestException as exc:
-        raise FalhaExternaTelegram(f"Falha de conexão com o Telegram: {exc}") from exc
+        raise FalhaExternaTelegram(
+            f"Falha de conexão com o Telegram: {_sanitizar(str(exc), token)}"
+        ) from exc
 
     if resposta.status_code != 200 or not resposta.json().get("ok"):
         raise FalhaExternaTelegram(
-            f"Telegram retornou falha (status {resposta.status_code}): {resposta.text}"
+            _sanitizar(
+                f"Telegram retornou falha (status {resposta.status_code}): {resposta.text}",
+                token,
+            )
         )
 
 
