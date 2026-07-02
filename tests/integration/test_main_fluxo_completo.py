@@ -64,6 +64,27 @@ def test_novidade_notifica_salva_historico_e_atualiza_estado(estado_arquivo, his
     assert (historico_dir / "comunicados" / "270.md").exists()
 
 
+def test_falha_inesperada_na_ata_nao_desfaz_persistencia_do_comunicado(estado_arquivo, historico_dir):
+    """FR-001/FR-009/SC-001: um bug inesperado (não FalhaExterna*) no processamento da
+    Ata não pode propagar de main() nem desfazer o que o Comunicado já persistiu na
+    mesma execução — senão o Comunicado seria renotificado na próxima execução.
+    """
+    with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
+         patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("decisão", "explicação"),
+         ), \
+         patch("src.main.enviar_mensagem"), \
+         patch("src.main.notificar_falha") as mock_notificar, \
+         patch("src.main.verificar_ata", side_effect=RuntimeError("bug inesperado")):
+        main.main()  # não deve propagar o RuntimeError
+
+    mock_notificar.assert_called_once()
+
+    assert estado.carregar_estado()["ultimo_comunicado"] == 270
+
+
 def test_idempotencia_segunda_execucao_nao_notifica(estado_arquivo, historico_dir):
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
@@ -256,3 +277,24 @@ def test_reprocessa_apos_falha_quando_chamada_externa_volta_a_funcionar(estado_a
     assert processado is True
     assert mock_enviar.call_count == 2
     assert estado.carregar_estado()["ultimo_comunicado"] == 270
+
+
+def test_main_registra_resumo_estruturado_ao_final_da_execucao(estado_arquivo, historico_dir, caplog):
+    """FR-007/SC-004: a última linha de log de uma execução deve ser um resumo legível
+    com o resultado de cada fluxo, sem precisar abrir os logs detalhados anteriores.
+    """
+    with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
+         patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("decisão", "explicação"),
+         ), \
+         patch("src.main.enviar_mensagem"), \
+         patch("src.bcb_client.listar_atas", return_value=[]), \
+         caplog.at_level("INFO"):
+        main.main()
+
+    ultima_mensagem = caplog.records[-1].message
+    assert "comunicado" in ultima_mensagem.lower()
+    assert "ata" in ultima_mensagem.lower()
+    assert "processado" in ultima_mensagem.lower()

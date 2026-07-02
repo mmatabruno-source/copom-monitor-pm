@@ -1,4 +1,5 @@
 import logging
+import time
 
 from src import bcb_client, estado, historico
 from src.analise import (
@@ -188,11 +189,39 @@ def verificar_ata():
     return True
 
 
+def _executar_isolado(nome, verificar):
+    """Executa um fluxo (Comunicado ou Ata) isolando qualquer exceção inesperada, para
+    que um bug em um fluxo nunca impeça a persistência do que o outro já concluiu com
+    sucesso na mesma execução (FR-001). As falhas já esperadas (FalhaExterna*) são
+    tratadas dentro do próprio `verificar_*` e não chegam até aqui — este `except` cobre
+    apenas erros verdadeiramente inesperados (ex.: bug, campo novo da API do BCB).
+
+    Retorna um resumo `{"processado": bool, "falhou": bool}` do fluxo (FR-007,
+    data-model.md) — "falhou" só é True para o caso de erro inesperado capturado aqui.
+    """
+    try:
+        processado = verificar()
+        return {"processado": bool(processado), "falhou": False}
+    except Exception as exc:  # noqa: BLE001 — isolamento deliberado (FR-001)
+        logger.error("Erro inesperado ao processar %s: %s", nome, exc, exc_info=True)
+        notificar_falha(f"processamento inesperado de {nome}", exc)
+        return {"processado": False, "falhou": True}
+
+
 def main():
+    inicio = time.monotonic()
+
     # Comunicado e Ata são verificados de forma independente na mesma execução:
     # falha/sucesso em um não afeta o processamento do outro (spec.md, clarificação).
-    verificar_comunicado()
-    verificar_ata()
+    resultado_comunicado = _executar_isolado("Comunicado", verificar_comunicado)
+    resultado_ata = _executar_isolado("Ata", verificar_ata)
+
+    duracao_segundos = time.monotonic() - inicio
+    logger.info(
+        f"Resumo da execução — Comunicado: processado={resultado_comunicado['processado']} "
+        f"falhou={resultado_comunicado['falhou']} | Ata: processado={resultado_ata['processado']} "
+        f"falhou={resultado_ata['falhou']} | duração={duracao_segundos:.1f}s"
+    )
 
 
 if __name__ == "__main__":

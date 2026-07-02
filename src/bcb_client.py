@@ -12,9 +12,27 @@ class FalhaExternaBCB(Exception):
     pass
 
 
+def _retentavel(status_code):
+    # 429 (limite de taxa) e 5xx (indisponibilidade momentânea) são tipicamente
+    # transitórios; qualquer outro 4xx (ex.: 404) é permanente — insistir não ajuda.
+    return status_code == 429 or status_code >= 500
+
+
+def _espera_para_tentativa(resposta, tentativa):
+    if resposta is not None and resposta.status_code == 429:
+        retry_after = resposta.headers.get("Retry-After")
+        if retry_after is not None:
+            try:
+                return float(retry_after)
+            except ValueError:
+                pass
+    return ESPERA_INICIAL_SEGUNDOS * tentativa  # 2s, depois 4s
+
+
 def _get(url, params):
     ultimo_erro = None
     for tentativa in range(1, TENTATIVAS + 1):
+        resposta = None
         try:
             resposta = requests.get(url, params=params, timeout=TIMEOUT_SEGUNDOS)
         except requests.RequestException as exc:
@@ -25,9 +43,11 @@ def _get(url, params):
             ultimo_erro = FalhaExternaBCB(
                 f"API do BCB retornou status {resposta.status_code} para {url}"
             )
+            if not _retentavel(resposta.status_code):
+                raise ultimo_erro
 
         if tentativa < TENTATIVAS:
-            time.sleep(ESPERA_INICIAL_SEGUNDOS * tentativa)  # 2s, depois 4s
+            time.sleep(_espera_para_tentativa(resposta, tentativa))
 
     raise ultimo_erro
 
