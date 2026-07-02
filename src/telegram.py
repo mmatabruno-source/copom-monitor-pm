@@ -1,9 +1,12 @@
 import os
+import time
 
 import requests
 
 LIMITE_CARACTERES = 4096
 TIMEOUT_SEGUNDOS = 30
+TENTATIVAS = 3
+ESPERA_INICIAL_SEGUNDOS = 2
 
 
 class FalhaExternaTelegram(Exception):
@@ -41,6 +44,23 @@ def _enviar_bloco(texto, token, chat_id):
         )
 
 
+def _enviar_bloco_com_retry(bloco, token, chat_id):
+    """Tenta enviar um único bloco até TENTATIVAS vezes. O retry é por bloco (não
+    reinicia do primeiro bloco da mensagem), então um bloco já entregue com sucesso
+    nunca é reenviado, mesmo que um bloco seguinte precise de novas tentativas.
+    """
+    ultimo_erro = None
+    for tentativa in range(1, TENTATIVAS + 1):
+        try:
+            _enviar_bloco(bloco, token, chat_id)
+            return
+        except FalhaExternaTelegram as exc:
+            ultimo_erro = exc
+            if tentativa < TENTATIVAS:
+                time.sleep(ESPERA_INICIAL_SEGUNDOS * tentativa)
+    raise ultimo_erro
+
+
 def enviar_mensagem(texto, token=None, chat_id=None):
     token = token or os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = chat_id or os.environ.get("TELEGRAM_CHAT_ID")
@@ -48,12 +68,8 @@ def enviar_mensagem(texto, token=None, chat_id=None):
     blocos = _dividir_em_blocos(texto)
     for indice, bloco in enumerate(blocos, start=1):
         try:
-            _enviar_bloco(bloco, token, chat_id)
+            _enviar_bloco_com_retry(bloco, token, chat_id)
         except FalhaExternaTelegram as exc:
-            # Se a mensagem foi dividida em vários blocos e falhar no meio, os blocos
-            # anteriores já foram entregues — uma nova tentativa reenvia a mensagem
-            # inteira, podendo duplicar o início. Risco aceito (raro e de baixo impacto),
-            # mas registrado explicitamente para facilitar diagnóstico se ocorrer.
             raise FalhaExternaTelegram(
                 f"Falha ao enviar bloco {indice}/{len(blocos)}: {exc}"
             ) from exc

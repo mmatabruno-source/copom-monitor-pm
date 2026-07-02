@@ -78,13 +78,13 @@ o reenvio de uma mensagem longa após falha parcial nunca duplica blocos já ent
 
 - [X] T004 [P] [US2] Criar `tests/unit/test_bcb_client.py`: erro de conexão e status `5xx`/`429` disparam nova tentativa (respeitando `Retry-After` quando presente); status `4xx` permanente (ex.: `404`) não gera nova tentativa (FR-004, D2)
 - [X] T005 [P] [US2] Criar `tests/unit/test_analise.py`: `_cliente()` constrói o `anthropic.Anthropic` com `max_retries=3` (retry nativo do SDK, FR-003); `extrair_selic_resultante` e `extrair_secoes_ata` cobertos com casos de sucesso e de formato inesperado/texto vazio (FR-008)
-- [ ] T006 [P] [US2] Estender `tests/unit/test_telegram.py`: ao falhar um bloco no meio de um envio de múltiplos blocos e a tentativa seguinte ter sucesso, os blocos já entregues não são reenviados (FR-005); esgotar tentativas de um bloco propaga `FalhaExternaTelegram` (FR-003)
+- [X] T006 [P] [US2] Estender `tests/unit/test_telegram.py`: ao falhar um bloco no meio de um envio de múltiplos blocos e a tentativa seguinte ter sucesso, os blocos já entregues não são reenviados (FR-005); esgotar tentativas de um bloco propaga `FalhaExternaTelegram` (FR-003)
 
 ### Implementation for User Story 2
 
 - [X] T007 [P] [US2] Em `src/bcb_client.py`, alterar `_get` para distinguir falha permanente (`4xx` exceto `429`) de transitória (erro de conexão, `5xx`, `429`), abortando sem novas tentativas no caso permanente e respeitando o cabeçalho `Retry-After` em `429` quando presente (FR-004, D2)
 - [X] T008 [P] [US2] Em `src/analise.py`, passar `max_retries=3` na construção do cliente `anthropic.Anthropic` em `_cliente()`, usando o retry nativo do SDK para falhas tipicamente transitórias da API da Anthropic (FR-003, D1)
-- [ ] T009 [P] [US2] Em `src/telegram.py`, adicionar retry/backoff por bloco na chamada a `_enviar_bloco` dentro do laço de `enviar_mensagem`, garantindo que blocos já entregues nunca sejam reenviados (FR-003, FR-005, D1, D3)
+- [X] T009 [P] [US2] Em `src/telegram.py`, adicionar retry/backoff por bloco na chamada a `_enviar_bloco` dentro do laço de `enviar_mensagem`, garantindo que blocos já entregues nunca sejam reenviados (FR-003, FR-005, D1, D3)
 
 **Checkpoint**: O robô se recupera sozinho de instabilidades momentâneas nas três
 integrações externas, sem esperar o próximo ciclo do cron.

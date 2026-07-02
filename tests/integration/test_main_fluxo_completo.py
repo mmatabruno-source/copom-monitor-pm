@@ -76,8 +76,11 @@ def test_falha_inesperada_na_ata_nao_desfaz_persistencia_do_comunicado(estado_ar
              return_value=("decisão", "explicação"),
          ), \
          patch("src.main.enviar_mensagem"), \
+         patch("src.main.notificar_falha") as mock_notificar, \
          patch("src.main.verificar_ata", side_effect=RuntimeError("bug inesperado")):
         main.main()  # não deve propagar o RuntimeError
+
+    mock_notificar.assert_called_once()
 
     assert estado.carregar_estado()["ultimo_comunicado"] == 270
 
