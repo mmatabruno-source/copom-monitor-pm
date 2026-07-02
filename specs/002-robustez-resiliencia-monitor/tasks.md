@@ -157,7 +157,7 @@ sucesso e falha.
 
 ### Implementation for User Story 6
 
-- [ ] T016 [P] [US6] Em `requirements.txt`, fixar `requests==2.34.2`, `anthropic==0.115.1`, `pytest==9.1.1` (FR-010, D8)
+- [X] T016 [P] [US6] Em `requirements.txt`, fixar `requests==2.34.2`, `anthropic==0.115.1`, `pytest==9.1.1` (FR-010, D8)
 
 **Checkpoint**: Uma atualização externa de biblioteca não pode mais alterar o
 comportamento de uma execução agendada sem ser uma decisão explícita.
