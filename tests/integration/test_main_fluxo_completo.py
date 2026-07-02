@@ -64,6 +64,24 @@ def test_novidade_notifica_salva_historico_e_atualiza_estado(estado_arquivo, his
     assert (historico_dir / "comunicados" / "270.md").exists()
 
 
+def test_falha_inesperada_na_ata_nao_desfaz_persistencia_do_comunicado(estado_arquivo, historico_dir):
+    """FR-001/FR-009/SC-001: um bug inesperado (não FalhaExterna*) no processamento da
+    Ata não pode propagar de main() nem desfazer o que o Comunicado já persistiu na
+    mesma execução — senão o Comunicado seria renotificado na próxima execução.
+    """
+    with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
+         patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("decisão", "explicação"),
+         ), \
+         patch("src.main.enviar_mensagem"), \
+         patch("src.main.verificar_ata", side_effect=RuntimeError("bug inesperado")):
+        main.main()  # não deve propagar o RuntimeError
+
+    assert estado.carregar_estado()["ultimo_comunicado"] == 270
+
+
 def test_idempotencia_segunda_execucao_nao_notifica(estado_arquivo, historico_dir):
     with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
          patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \

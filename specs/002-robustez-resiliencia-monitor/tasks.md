@@ -53,7 +53,7 @@ exceção inesperada depois de `verificar_comunicado` ter tido sucesso e confirm
 
 ### Tests for User Story 1
 
-- [ ] T001 [P] [US1] Adicionar cenário em `tests/integration/test_main_fluxo_completo.py`: `verificar_comunicado` bem-sucedido seguido de `verificar_ata` lançando uma exceção inesperada (não `FalhaExterna*`) dentro de `main()` — o estado do Comunicado permanece salvo e `main()` não propaga a exceção (FR-001, FR-009, SC-001)
+- [X] T001 [P] [US1] Adicionar cenário em `tests/integration/test_main_fluxo_completo.py`: `verificar_comunicado` bem-sucedido seguido de `verificar_ata` lançando uma exceção inesperada (não `FalhaExterna*`) dentro de `main()` — o estado do Comunicado permanece salvo e `main()` não propaga a exceção (FR-001, FR-009, SC-001)
 
 ### Implementation for User Story 1
 
