@@ -120,11 +120,11 @@ processado e do que falhou, sem precisar abrir os logs detalhados.
 
 ### Tests for User Story 4
 
-- [ ] T012 [US4] Em `tests/integration/test_main_fluxo_completo.py`, adicionar um teste que roda `main()` com um cenário misto (um fluxo processado, outro sem novidade) e verifica, via `caplog`, que a última linha de log é um resumo estruturado contendo o resultado dos dois fluxos (FR-007, SC-004)
+- [X] T012 [US4] Em `tests/integration/test_main_fluxo_completo.py`, adicionar um teste que roda `main()` com um cenário misto (um fluxo processado, outro sem novidade) e verifica, via `caplog`, que a última linha de log é um resumo estruturado contendo o resultado dos dois fluxos (FR-007, SC-004)
 
 ### Implementation for User Story 4
 
-- [ ] T013 [US4] Em `src/main.py`, acumular um resumo de execução (campos descritos em `data-model.md`: verificado/processado/falhou por fluxo, duração) durante `main()` e registrá-lo como uma única linha de log estruturada ao final (FR-007, D7) — depende de T002 (mesma função `main()`, mesmo arquivo)
+- [X] T013 [US4] Em `src/main.py`, acumular um resumo de execução (campos descritos em `data-model.md`: verificado/processado/falhou por fluxo, duração) durante `main()` e registrá-lo como uma única linha de log estruturada ao final (FR-007, D7) — depende de T002 (mesma função `main()`, mesmo arquivo)
 
 **Checkpoint**: Qualquer execução pode ser diagnosticada lendo apenas a última linha de
 log, sem vasculhar o log bruto inteiro.
