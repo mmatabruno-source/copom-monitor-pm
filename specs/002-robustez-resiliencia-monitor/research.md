@@ -6,17 +6,25 @@ reaproveita-se o padrão simples já existente em `bcb_client._get`.
 
 ## D1 — Retry/backoff para Anthropic e Telegram
 
-**Decision**: Reaproveitar o mesmo padrão de `bcb_client._get` (loop de N tentativas com
-espera crescente entre elas) diretamente em `analise._chamar_claude` e em
-`telegram._enviar_bloco`, sem extrair uma abstração compartilhada nem adicionar
-dependência (`tenacity` ou similar).
+**Decision**: Para a Anthropic, usar o parâmetro nativo `max_retries` do SDK oficial
+(`anthropic.Anthropic(api_key=..., max_retries=3)`) em vez de um loop manual — o SDK já
+implementa retry com backoff para erros tipicamente transitórios (erro de conexão,
+timeout, `429`, `5xx`), então declarar `max_retries=3` (em vez do padrão `2` do SDK, para
+manter consistência com `TENTATIVAS = 3` do `bcb_client`) é suficiente. Para o Telegram,
+que não tem um SDK com retry embutido (é `requests` puro), reaproveitar o mesmo padrão
+manual já usado em `bcb_client._get` (loop de N tentativas com espera crescente),
+aplicado por bloco (ver D3).
 
-**Rationale**: Volume de chamadas é baixíssimo (~16/ano); a duplicação de ~10 linhas de
-retry em 3 módulos é mais simples de entender e depurar do que uma abstração genérica,
-alinhado ao Princípio VII.
+**Rationale**: Usar a funcionalidade nativa do SDK da Anthropic é mais simples e mais
+correto do que reimplementar retry por cima de uma biblioteca que já retenta sozinha
+(Princípio VII) — evita um retry duplicado (SDK tentando novamente por dentro enquanto
+um loop externo também tenta). Para o Telegram, sem SDK, o padrão manual do BCB é a
+opção mais simples disponível.
 
 **Alternatives considered**: Biblioteca `tenacity` — rejeitada por adicionar dependência
-externa para um padrão trivial já implementado manualmente no projeto.
+externa para um padrão trivial já disponível nativamente (Anthropic) ou já implementado
+manualmente no projeto (BCB/Telegram). Loop manual também para a Anthropic — rejeitado
+por duplicar uma capacidade que o SDK já oferece.
 
 ## D2 — Retry criterioso na API do BCB
 
