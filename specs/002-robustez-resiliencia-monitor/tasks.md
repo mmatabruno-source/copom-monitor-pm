@@ -141,8 +141,8 @@ sucesso e falha.
 
 ### Tests for User Story 5
 
-- [ ] T014 [P] [US5] Criar `tests/unit/test_historico.py`: `carregar_publicacao_anterior` retorna a publicação de maior número anterior ao número atual, retorna `None` quando o diretório não existe ou está vazio, e ignora arquivos `.json` com nome não numérico; `salvar_publicacao` grava `.json` e `.md` de forma atômica (FR-008)
-- [ ] T015 [P] [US5] Criar `tests/unit/test_notificar_falha.py`: caminho de sucesso (envia mensagem de aviso formatada) e caminho de falha dupla (o próprio Telegram falha ao tentar avisar — `notificar_falha` não relança nem tenta de novo) (FR-008)
+- [X] T014 [P] [US5] Criar `tests/unit/test_historico.py`: `carregar_publicacao_anterior` retorna a publicação de maior número anterior ao número atual, retorna `None` quando o diretório não existe ou está vazio, e ignora arquivos `.json` com nome não numérico; `salvar_publicacao` grava `.json` e `.md` de forma atômica (FR-008)
+- [X] T015 [P] [US5] Criar `tests/unit/test_notificar_falha.py`: caminho de sucesso (envia mensagem de aviso formatada) e caminho de falha dupla (o próprio Telegram falha ao tentar avisar — `notificar_falha` não relança nem tenta de novo) (FR-008)
 
 **Checkpoint**: Todos os módulos listados na spec como hoje sem testes (`bcb_client`,
 `analise`, `historico`, `notificar_falha`) têm cobertura de sucesso e falha.
