@@ -166,8 +166,8 @@ comportamento de uma execução agendada sem ser uma decisão explícita.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T017 Rodar `pytest -q` completo e os passos manuais de `quickstart.md` (isolamento de falha, ausência do token nos logs, resumo de execução) e confirmar que todos os critérios de sucesso (SC-001 a SC-006) passam
-- [ ] T018 Atualizar `specs/001-monitor-decisoes-copom/plan.md` ou `CLAUDE.md` apenas se a implementação revelar necessidade de novos módulos/arquivos além dos já mapeados no Project Structure de `plan.md` (não antecipar — só se necessário)
+- [X] T017 Rodar `pytest -q` completo e os passos manuais de `quickstart.md` (isolamento de falha, ausência do token nos logs, resumo de execução) e confirmar que todos os critérios de sucesso (SC-001 a SC-006) passam
+- [X] T018 Atualizar `specs/001-monitor-decisoes-copom/plan.md` ou `CLAUDE.md` apenas se a implementação revelar necessidade de novos módulos/arquivos além dos já mapeados no Project Structure de `plan.md` (não antecipar — só se necessário) — não foi necessário: a implementação seguiu exatamente o Project Structure de `plan.md` (002), sem módulos novos além dos arquivos de teste já previstos
 
 ---
 
