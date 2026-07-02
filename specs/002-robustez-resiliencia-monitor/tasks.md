@@ -57,7 +57,7 @@ exceção inesperada depois de `verificar_comunicado` ter tido sucesso e confirm
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] Em `src/main.py`, envolver cada chamada a `verificar_comunicado()` e `verificar_ata()` dentro de `main()` em `try/except Exception`, registrando a exceção inesperada em log e chamando `notificar_falha` com um contexto genérico, sem relançar (FR-001, D5) — depende de T001 estar escrito e falhando antes da mudança
+- [X] T002 [US1] Em `src/main.py`, envolver cada chamada a `verificar_comunicado()` e `verificar_ata()` dentro de `main()` em `try/except Exception`, registrando a exceção inesperada em log e chamando `notificar_falha` com um contexto genérico, sem relançar (FR-001, D5) — depende de T001 estar escrito e falhando antes da mudança
 - [ ] T003 [US1] Em `.github/workflows/monitor-copom.yml`, envolver `git pull --rebase --autostash` + `git push` do step "Commitar histórico atualizado" em um laço de até 3 tentativas com espera entre elas; ao esgotar as tentativas, invocar `notificar_falha` (via `python -c` ou script auxiliar) com os secrets do Telegram já disponíveis nesse step, avisando sobre o risco de notificação duplicada na próxima execução (FR-011, D6) — validação manual via quickstart.md, não é testável por `pytest`
 
 **Checkpoint**: A garantia mais crítica do projeto (idempotência sob falha parcial) está

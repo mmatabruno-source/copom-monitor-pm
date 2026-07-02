@@ -188,11 +188,26 @@ def verificar_ata():
     return True
 
 
+def _executar_isolado(nome, verificar):
+    """Executa um fluxo (Comunicado ou Ata) isolando qualquer exceção inesperada, para
+    que um bug em um fluxo nunca impeça a persistência do que o outro já concluiu com
+    sucesso na mesma execução (FR-001). As falhas já esperadas (FalhaExterna*) são
+    tratadas dentro do próprio `verificar_*` e não chegam até aqui — este `except` cobre
+    apenas erros verdadeiramente inesperados (ex.: bug, campo novo da API do BCB).
+    """
+    try:
+        return verificar()
+    except Exception as exc:  # noqa: BLE001 — isolamento deliberado (FR-001)
+        logger.error("Erro inesperado ao processar %s: %s", nome, exc, exc_info=True)
+        notificar_falha(f"processamento inesperado de {nome}", exc)
+        return False
+
+
 def main():
     # Comunicado e Ata são verificados de forma independente na mesma execução:
     # falha/sucesso em um não afeta o processamento do outro (spec.md, clarificação).
-    verificar_comunicado()
-    verificar_ata()
+    _executar_isolado("Comunicado", verificar_comunicado)
+    _executar_isolado("Ata", verificar_ata)
 
 
 if __name__ == "__main__":
