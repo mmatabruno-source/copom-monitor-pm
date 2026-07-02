@@ -7,6 +7,8 @@ import anthropic
 from src import bcb_client
 
 MODELO = "claude-sonnet-4-6"
+TENTATIVAS_ANTHROPIC = 3  # retry nativo do SDK para falhas tipicamente transitórias
+                          # (erro de conexão, timeout, 429, 5xx) — ver research.md D1
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ class FalhaExternaAnthropic(Exception):
 
 def _cliente():
     api_key = os.environ.get("ANTHROPIC_API_KEY")
-    return anthropic.Anthropic(api_key=api_key)
+    return anthropic.Anthropic(api_key=api_key, max_retries=TENTATIVAS_ANTHROPIC)
 
 
 def _chamar_claude(prompt):
