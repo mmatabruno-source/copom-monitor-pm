@@ -98,3 +98,56 @@ def test_falha_de_status_nao_expoe_o_token_na_excecao(mock_post):
         _enviar_bloco("texto", token, "123")
 
     assert token not in str(excinfo.value)
+
+
+def _resposta(status_code, texto):
+    resposta = type("Resposta", (), {})()
+    resposta.status_code = status_code
+    resposta.text = texto
+    resposta.json = lambda: {"ok": status_code == 200, "description": texto}
+    return resposta
+
+
+@patch("src.telegram.requests.post")
+def test_erro_de_formatacao_reenvia_o_mesmo_bloco_em_texto_simples(mock_post):
+    mock_post.side_effect = [
+        _resposta(400, "Bad Request: can't parse entities: character '_' is reserved"),
+        _resposta(200, "ok"),
+    ]
+
+    _enviar_bloco("texto *mal* formatado", "tok", "123")
+
+    assert mock_post.call_count == 2
+    primeira_chamada, segunda_chamada = mock_post.call_args_list
+    assert "parse_mode" in primeira_chamada.kwargs["json"]
+    assert "parse_mode" not in segunda_chamada.kwargs["json"]
+
+
+@patch("src.telegram.requests.post")
+def test_erro_de_formatacao_com_nova_falha_em_texto_simples_propaga_erro(mock_post):
+    mock_post.side_effect = [
+        _resposta(400, "Bad Request: can't parse entities: character '_' is reserved"),
+        _resposta(500, "Internal Server Error"),
+    ]
+
+    with pytest.raises(FalhaExternaTelegram):
+        _enviar_bloco("texto *mal* formatado", "tok", "123")
+
+
+@patch("src.telegram.requests.post")
+def test_erro_de_formatacao_em_bloco_posterior_nao_reenvia_bloco_ja_entregue(mock_post):
+    paragrafo = "z" * 3000
+    texto = "\n\n".join([paragrafo] * 2)
+    blocos = _dividir_em_blocos(texto)
+
+    mock_post.side_effect = [
+        _resposta(200, "ok"),  # bloco 1: sucesso de primeira
+        _resposta(400, "Bad Request: can't parse entities"),  # bloco 2: erro de formatação
+        _resposta(200, "ok"),  # bloco 2: sucesso em texto simples
+    ]
+
+    enviar_mensagem(texto, token="tok", chat_id="123")
+
+    assert mock_post.call_count == 3
+    textos_enviados = [chamada.kwargs["json"]["text"] for chamada in mock_post.call_args_list]
+    assert textos_enviados == [blocos[0], blocos[1], blocos[1]]

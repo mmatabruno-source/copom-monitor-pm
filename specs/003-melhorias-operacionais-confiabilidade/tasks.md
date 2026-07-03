@@ -55,13 +55,13 @@ bem-sucedida.
 
 ### Tests for User Story 1
 
-- [ ] T001 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: `_enviar_bloco` recebe 400 com `"can't parse entities"` no corpo, reenvia o mesmo bloco sem a chave `parse_mode` no payload, e a chamada seguinte tem sucesso — `enviar_mensagem` não lança exceção (FR-001, FR-003)
-- [ ] T002 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: erro de formatação seguido de nova falha (não relacionada a formatação) na tentativa em texto simples — `FalhaExternaTelegram` é levantada normalmente, não fica silenciosa (FR-001, Edge Case de spec.md)
-- [ ] T003 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: envio de múltiplos blocos onde um bloco anterior já foi entregue com sucesso e um bloco seguinte aciona o fallback de texto simples — o bloco já entregue não é reenviado (FR-003)
+- [X] T001 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: `_enviar_bloco` recebe 400 com `"can't parse entities"` no corpo, reenvia o mesmo bloco sem a chave `parse_mode` no payload, e a chamada seguinte tem sucesso — `enviar_mensagem` não lança exceção (FR-001, FR-003)
+- [X] T002 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: erro de formatação seguido de nova falha (não relacionada a formatação) na tentativa em texto simples — `FalhaExternaTelegram` é levantada normalmente, não fica silenciosa (FR-001, Edge Case de spec.md)
+- [X] T003 [P] [US1] Em `tests/unit/test_telegram.py`, adicionar caso: envio de múltiplos blocos onde um bloco anterior já foi entregue com sucesso e um bloco seguinte aciona o fallback de texto simples — o bloco já entregue não é reenviado (FR-003)
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Em `src/telegram.py`, em `_enviar_bloco`, detectar erro de formatação (status 400 com `"can't parse entities"` no corpo da resposta, case-insensitive) e, quando detectado, fazer uma tentativa extra imediata do mesmo bloco com payload sem `parse_mode`, antes de propagar `FalhaExternaTelegram` (FR-001, FR-002, D1 de research.md) — depende de T001-T003 estarem escritos e falhando antes da mudança
+- [X] T004 [US1] Em `src/telegram.py`, em `_enviar_bloco`, detectar erro de formatação (status 400 com `"can't parse entities"` no corpo da resposta, case-insensitive) e, quando detectado, fazer uma tentativa extra imediata do mesmo bloco com payload sem `parse_mode`, antes de propagar `FalhaExternaTelegram` (FR-001, FR-002, D1 de research.md) — depende de T001-T003 estarem escritos e falhando antes da mudança
 
 **Checkpoint**: Nenhuma notificação é perdida por formatação inválida. Este é o MVP
 desta feature.

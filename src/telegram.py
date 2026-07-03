@@ -40,16 +40,26 @@ def _sanitizar(texto, token):
     return texto.replace(token, "***")
 
 
-def _enviar_bloco(texto, token, chat_id):
+def _erro_de_formatacao(resposta):
+    return resposta is not None and resposta.status_code == 400 and (
+        "can't parse entities" in resposta.text.lower()
+    )
+
+
+def _postar(texto, token, chat_id, com_formatacao):
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": chat_id, "text": texto, "parse_mode": "Markdown"}
+    payload = {"chat_id": chat_id, "text": texto}
+    if com_formatacao:
+        payload["parse_mode"] = "Markdown"
     try:
-        resposta = requests.post(url, json=payload, timeout=TIMEOUT_SEGUNDOS)
+        return requests.post(url, json=payload, timeout=TIMEOUT_SEGUNDOS)
     except requests.RequestException as exc:
         raise FalhaExternaTelegram(
             f"Falha de conexão com o Telegram: {_sanitizar(str(exc), token)}"
         ) from exc
 
+
+def _verificar_sucesso(resposta, token):
     if resposta.status_code != 200 or not resposta.json().get("ok"):
         raise FalhaExternaTelegram(
             _sanitizar(
@@ -57,6 +67,17 @@ def _enviar_bloco(texto, token, chat_id):
                 token,
             )
         )
+
+
+def _enviar_bloco(texto, token, chat_id):
+    resposta = _postar(texto, token, chat_id, com_formatacao=True)
+
+    if _erro_de_formatacao(resposta):
+        # O Telegram rejeitou a formatação Markdown do texto gerado pela LLM — em vez
+        # de perder a notificação, reenviamos o mesmo bloco sem formatação especial.
+        resposta = _postar(texto, token, chat_id, com_formatacao=False)
+
+    _verificar_sucesso(resposta, token)
 
 
 def _enviar_bloco_com_retry(bloco, token, chat_id):
