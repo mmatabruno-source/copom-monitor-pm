@@ -79,17 +79,17 @@ resposta mockada da API do GitHub Actions cobrindo os 4 cenários de `data-model
 
 ### Tests for User Story 2
 
-- [ ] T005 [P] [US2] Criar `tests/unit/test_watchdog.py`: execução mais recente dentro do intervalo esperado e sem falhas recentes → `deve_alertar=False` (FR-007, data-model.md)
-- [ ] T006 [P] [US2] Em `tests/unit/test_watchdog.py`: nenhuma execução retornada pela API (cold start) → `deve_alertar=False`, sem exceção (Edge Case de spec.md, SC-003)
-- [ ] T007 [P] [US2] Em `tests/unit/test_watchdog.py`: execução mais recente com `created_at` há mais de 30h → `deve_alertar=True`, `motivo="sem_execucao_recente"` (FR-004, FR-005)
-- [ ] T008 [P] [US2] Em `tests/unit/test_watchdog.py`: últimas 3 execuções com `conclusion="failure"` → `deve_alertar=True`, `motivo="falhas_repetidas"`, mesmo com execução recente (FR-006)
-- [ ] T009 [P] [US2] Em `tests/unit/test_watchdog.py`: resposta HTTP de erro (≠ 200) da API do GitHub Actions → não gera alerta falso, apenas loga e encerra (contracts/github-actions-api.md, seção "Erros")
+- [X] T005 [P] [US2] Criar `tests/unit/test_watchdog.py`: execução mais recente dentro do intervalo esperado e sem falhas recentes → `deve_alertar=False` (FR-007, data-model.md)
+- [X] T006 [P] [US2] Em `tests/unit/test_watchdog.py`: nenhuma execução retornada pela API (cold start) → `deve_alertar=False`, sem exceção (Edge Case de spec.md, SC-003)
+- [X] T007 [P] [US2] Em `tests/unit/test_watchdog.py`: execução mais recente com `created_at` há mais de 30h → `deve_alertar=True`, `motivo="sem_execucao_recente"` (FR-004, FR-005)
+- [X] T008 [P] [US2] Em `tests/unit/test_watchdog.py`: últimas 3 execuções com `conclusion="failure"` → `deve_alertar=True`, `motivo="falhas_repetidas"`, mesmo com execução recente (FR-006)
+- [X] T009 [P] [US2] Em `tests/unit/test_watchdog.py`: resposta HTTP de erro (≠ 200) da API do GitHub Actions → não gera alerta falso, apenas loga e encerra (contracts/github-actions-api.md, seção "Erros")
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Criar `src/watchdog.py`: função de consulta à API do GitHub Actions (`GET .../actions/workflows/monitor-copom.yml/runs?per_page=5`, autenticada com `GITHUB_TOKEN` do ambiente, repositório de `GITHUB_REPOSITORY`) e função pura de decisão (`deve_alertar`, `motivo`, `ultima_execucao_em`) conforme regras de `data-model.md` e `contracts/github-actions-api.md` (FR-004 a FR-007, D2 de research.md) — depende de T005-T009 estarem escritos e falhando antes da implementação
-- [ ] T011 [US2] Em `src/watchdog.py`, no ponto de entrada (`if __name__ == "__main__"` ou função `main()`), chamar `notificar_falha` de `src/notificar_falha.py` com mensagem específica por `motivo` quando `deve_alertar=True`, em português (FR-005, FR-006, Princípio VI) — depende de T010
-- [ ] T012 [US2] Criar `.github/workflows/watchdog.yml`: agendamento diário (`cron: "0 12 * * *"`), `permissions: { contents: read, actions: read }`, step que roda `python -m src.watchdog` com `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` e os secrets do Telegram já usados por `notificar_falha` (D3 de research.md) — depende de T010-T011, validação manual via quickstart.md, não é testável por `pytest`
+- [X] T010 [US2] Criar `src/watchdog.py`: função de consulta à API do GitHub Actions (`GET .../actions/workflows/monitor-copom.yml/runs?per_page=5`, autenticada com `GITHUB_TOKEN` do ambiente, repositório de `GITHUB_REPOSITORY`) e função pura de decisão (`deve_alertar`, `motivo`, `ultima_execucao_em`) conforme regras de `data-model.md` e `contracts/github-actions-api.md` (FR-004 a FR-007, D2 de research.md) — depende de T005-T009 estarem escritos e falhando antes da implementação
+- [X] T011 [US2] Em `src/watchdog.py`, no ponto de entrada (`if __name__ == "__main__"` ou função `main()`), chamar `notificar_falha` de `src/notificar_falha.py` com mensagem específica por `motivo` quando `deve_alertar=True`, em português (FR-005, FR-006, Princípio VI) — depende de T010
+- [X] T012 [US2] Criar `.github/workflows/watchdog.yml`: agendamento diário (`cron: "0 12 * * *"`), `permissions: { contents: read, actions: read }`, step que roda `python -m src.watchdog` com `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` e os secrets do Telegram já usados por `notificar_falha` (D3 de research.md) — depende de T010-T011, validação manual via quickstart.md, não é testável por `pytest`
 
 **Checkpoint**: Uma ausência ou degradação prolongada do monitoramento automático é
 detectada e comunicada ao usuário em até 24h, sem falsos positivos.
