@@ -17,6 +17,13 @@ Este projeto segue SDD via Spec Kit. **Antes de escrever ou alterar qualquer có
 Se notar uma lacuna, contradição ou ambiguidade na spec, pare e sinalize ao usuário —
 não assuma e não preencha a lacuna silenciosamente.
 
+**Isso vale para QUALQUER alteração de código, sem exceção de tamanho ou urgência** —
+correção de bug de uma linha, ajuste de texto de mensagem, atualização de dependência,
+mudança de configuração de workflow, etc. Não existe "melhoria pequena demais para
+passar pelo Spec Kit". Mesmo pedidos que pareçam triviais devem gerar (ou se encaixar
+em) um `spec.md`/`tasks.md` antes da implementação — nunca pular direto para o código
+por julgar a mudança simples.
+
 **Após concluir cada tarefa do `tasks.md`, faça commit referenciando o ID da tarefa**
 (ex.: `git commit -m "T3.2: implementa extração de decisão do Comunicado"`). Um commit por
 tarefa, não um commit gigante ao final — assim o histórico do Git documenta sozinho a
@@ -81,5 +88,5 @@ Estas decisões devem ser incorporadas ao `spec.md` e `plan.md` quando gerados v
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/002-robustez-resiliencia-monitor/plan.md
+at specs/003-melhorias-operacionais-confiabilidade/plan.md
 <!-- SPECKIT END -->
