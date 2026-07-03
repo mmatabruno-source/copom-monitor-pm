@@ -279,6 +279,45 @@ def test_reprocessa_apos_falha_quando_chamada_externa_volta_a_funcionar(estado_a
     assert estado.carregar_estado()["ultimo_comunicado"] == 270
 
 
+def test_comunicado_mensagem_1_contem_link_oficial(estado_arquivo, historico_dir):
+    with patch("src.bcb_client.listar_comunicados", return_value=COMUNICADO_LISTA), \
+         patch("src.bcb_client.detalhes_comunicado", return_value=COMUNICADO_DETALHES), \
+         patch(
+             "src.main.gerar_mensagens_comunicado",
+             return_value=("📢 Decisão: Selic 10%", "ℹ️ Explicações: tom neutro"),
+         ), \
+         patch("src.main.enviar_mensagem") as mock_enviar:
+        main.verificar_comunicado()
+
+    mensagem1_enviada = mock_enviar.call_args_list[0].args[0]
+    assert mensagem1_enviada.endswith(
+        "🔗 *Leia na íntegra*: "
+        "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos"
+    )
+
+    md_salvo = (historico_dir / "comunicados" / "270.md").read_text()
+    assert "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos" in md_salvo
+
+
+def test_ata_mensagem_1_contem_link_oficial(estado_arquivo, historico_dir):
+    with patch("src.bcb_client.listar_atas", return_value=ATA_LISTA), \
+         patch("src.bcb_client.detalhes_ata", return_value=ATA_DETALHES), \
+         patch(
+             "src.main.gerar_analise_ata",
+             return_value=("resumo", "riscos", "diagnóstico", "expectativas"),
+         ), \
+         patch("src.main.enviar_mensagem") as mock_enviar:
+        main.verificar_ata()
+
+    mensagem1_enviada = mock_enviar.call_args_list[0].args[0]
+    assert mensagem1_enviada.endswith(
+        "🔗 *Leia na íntegra*: https://www.bcb.gov.br/publicacoes/atascopom/cronologicos"
+    )
+
+    md_salvo = (historico_dir / "atas" / "270.md").read_text()
+    assert "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos" in md_salvo
+
+
 def test_main_registra_resumo_estruturado_ao_final_da_execucao(estado_arquivo, historico_dir, caplog):
     """FR-007/SC-004: a última linha de log de uma execução deve ser um resumo legível
     com o resultado de cada fluxo, sem precisar abrir os logs detalhados anteriores.

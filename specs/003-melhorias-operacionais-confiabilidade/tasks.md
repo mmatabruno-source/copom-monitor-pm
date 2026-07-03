@@ -107,14 +107,14 @@ Comunicado e de Ata, e o `.md` salvo em `historico/`.
 
 ### Tests for User Story 3
 
-- [ ] T013 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar cenário: `verificar_comunicado` processa uma nova publicação e a mensagem 1 enviada ao Telegram termina com `🔗 *Leia na íntegra*: https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos` (FR-008, FR-010)
-- [ ] T014 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar cenário: `verificar_ata` processa uma nova publicação e a mensagem 1 enviada ao Telegram termina com `🔗 *Leia na íntegra*: https://www.bcb.gov.br/publicacoes/atascopom/cronologicos` (FR-009, FR-010)
-- [ ] T015 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar verificação: o markdown salvo em `historico/comunicados/*.md` e `historico/atas/*.md` contém o mesmo link presente na mensagem enviada (FR-011)
+- [X] T013 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar cenário: `verificar_comunicado` processa uma nova publicação e a mensagem 1 enviada ao Telegram termina com `🔗 *Leia na íntegra*: https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos` (FR-008, FR-010)
+- [X] T014 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar cenário: `verificar_ata` processa uma nova publicação e a mensagem 1 enviada ao Telegram termina com `🔗 *Leia na íntegra*: https://www.bcb.gov.br/publicacoes/atascopom/cronologicos` (FR-009, FR-010)
+- [X] T015 [P] [US3] Em `tests/integration/test_main_fluxo_completo.py`, adicionar verificação: o markdown salvo em `historico/comunicados/*.md` e `historico/atas/*.md` contém o mesmo link presente na mensagem enviada (FR-011)
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Em `src/main.py`, em `verificar_comunicado`, após `gerar_mensagens_comunicado` retornar, concatenar a `mensagem1` com `\n\n🔗 *Leia na íntegra*: https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos` antes do envio e do registro em `comunicado["analise"]` (FR-008, FR-010, FR-011, D4 de research.md) — depende de T013-T015 estarem escritos e falhando antes da mudança
-- [ ] T017 [US3] Em `src/main.py`, em `verificar_ata`, após `gerar_analise_ata` retornar, concatenar a `mensagem1` com `\n\n🔗 *Leia na íntegra*: https://www.bcb.gov.br/publicacoes/atascopom/cronologicos` antes do envio e do registro em `ata["analise"]` (FR-009, FR-010, FR-011, D4 de research.md) — depende de T013-T015 estarem escritos e falhando antes da mudança
+- [X] T016 [US3] Em `src/main.py`, em `verificar_comunicado`, após `gerar_mensagens_comunicado` retornar, concatenar a `mensagem1` com `\n\n🔗 *Leia na íntegra*: https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos` antes do envio e do registro em `comunicado["analise"]` (FR-008, FR-010, FR-011, D4 de research.md) — depende de T013-T015 estarem escritos e falhando antes da mudança
+- [X] T017 [US3] Em `src/main.py`, em `verificar_ata`, após `gerar_analise_ata` retornar, concatenar a `mensagem1` com `\n\n🔗 *Leia na íntegra*: https://www.bcb.gov.br/publicacoes/atascopom/cronologicos` antes do envio e do registro em `ata["analise"]` (FR-009, FR-010, FR-011, D4 de research.md) — depende de T013-T015 estarem escritos e falhando antes da mudança
 
 **Checkpoint**: 100% das notificações principais de Comunicado e de Ata contêm o link
 oficial, na mensagem entregue e no histórico salvo.
@@ -130,7 +130,7 @@ confirmado e em produção.
 
 ### Implementation for User Story 4
 
-- [ ] T018 [P] [US4] Em `CLAUDE.md`, remover a seção "Pendências conhecidas a validar com `/speckit-clarify` antes de implementar" (FR-012, D5 de research.md)
+- [X] T018 [P] [US4] Em `CLAUDE.md`, remover a seção "Pendências conhecidas a validar com `/speckit-clarify` antes de implementar" (FR-012, D5 de research.md)
 
 **Checkpoint**: Nenhuma referência desatualizada ao status do endpoint de Comunicados
 permanece na documentação do projeto.

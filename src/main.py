@@ -17,6 +17,9 @@ from src.telegram import FalhaExternaTelegram, enviar_mensagem
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+LINK_COMUNICADOS = "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos"
+LINK_ATAS = "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos"
+
 
 def _renderizar_md_comunicado(comunicado, mensagem1, mensagem2):
     return (
@@ -119,6 +122,8 @@ def verificar_comunicado():
         notificar_falha(f"geração de análise do Comunicado {nro_reuniao}", exc)
         return False
 
+    mensagem1 = f"{mensagem1}\n\n🔗 *Leia na íntegra*: {LINK_COMUNICADOS}"
+
     try:
         enviar_mensagem(mensagem1)
         enviar_mensagem(mensagem2)
@@ -170,6 +175,8 @@ def verificar_ata():
         logger.error("Falha ao gerar análise da Ata %s: %s", nro_reuniao, exc)
         notificar_falha(f"geração de análise da Ata {nro_reuniao}", exc)
         return False
+
+    mensagem1 = f"{mensagem1}\n\n🔗 *Leia na íntegra*: {LINK_ATAS}"
 
     try:
         enviar_mensagem(mensagem1)
