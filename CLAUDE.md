@@ -52,10 +52,6 @@ execução do SDD, tarefa por tarefa.
 - **Fonte de verdade:** detecção de novidade sempre via API do BCB, nunca via calendário
   estimado de reuniões
 
-## Pendências conhecidas a validar com `/speckit-clarify` antes de implementar
-- Confirmar a URL exata e o payload do endpoint de **comunicados** do BCB — só o endpoint
-  de **atas** foi testado e confirmado até agora
-
 ## Decisões já tomadas (clarificações resolvidas em 28/06/2026)
 Estas decisões devem ser incorporadas ao `spec.md` e `plan.md` quando gerados via
 `/speckit-specify` e `/speckit-plan` — não repetir o `/speckit-clarify` para estes pontos:

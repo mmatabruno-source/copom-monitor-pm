@@ -139,8 +139,8 @@ permanece na documentação do projeto.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T019 Rodar `pytest -q` completo e os passos manuais de `quickstart.md` (fallback de formatação, watchdog em todos os cenários, link oficial nas duas mensagens, ausência da pendência no CLAUDE.md) e confirmar que todos os critérios de sucesso (SC-001 a SC-005) passam
-- [ ] T020 Revisar se `CLAUDE.md`/`plan.md` precisam de atualização adicional além do já previsto no Project Structure de `plan.md` (003) — só se a implementação revelar necessidade de módulo/arquivo não mapeado
+- [X] T019 Rodar `pytest -q` completo e os passos manuais de `quickstart.md` (fallback de formatação, watchdog em todos os cenários, link oficial nas duas mensagens, ausência da pendência no CLAUDE.md) e confirmar que todos os critérios de sucesso (SC-001 a SC-005) passam — 54 testes passando, `ruff check .` sem erros, `grep "Pendências conhecidas" CLAUDE.md` sem ocorrência
+- [X] T020 Revisar se `CLAUDE.md`/`plan.md` precisam de atualização adicional além do já previsto no Project Structure de `plan.md` (003) — não foi necessário: a implementação seguiu exatamente o Project Structure previsto, sem módulos novos além de `src/watchdog.py` e `tests/unit/test_watchdog.py`, já mapeados
 
 ---
 
